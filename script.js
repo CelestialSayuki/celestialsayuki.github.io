@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ****** 请替换为你的 Google Apps Script Web App URL ******
     // 这个 URL 是你部署 Google Apps Script 为 Web App 后获得的。
     // 它将同时处理上传 (POST 请求) 和读取 (GET 请求) 操作。
-    const GOOGLE_SHEETS_WEB_APP_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+    const GOOGLE_SHEETS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzTrWt5OUVKfQr3GU2NB051AiF7JUulH-iFf9HGFBr8pQNdMdfZ4R3JmNOhIIDnwvsy/exec';
     // ****** ******************************************** ******
 
     const menuItems = document.querySelectorAll('.menu-item');
