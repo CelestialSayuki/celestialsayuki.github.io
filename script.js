@@ -2,11 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ****** 请替换为你的 Google Apps Script Web App URL ******
     // 这个 URL 是你部署 Google Apps Script 为 Web App 后获得的。
     // 它将同时处理上传 (POST 请求) 和读取 (GET 请求) 操作。
-    const GOOGLE_SHEETS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzTrWt5OUVKfQr3GU2NB051AiF7JUulH-iFf9HGFBr8pQNdMdfZ4R3JmNOhIIDnwvsy/exec';
+    const GOOGLE_SHEETS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyH3Ra8vRj7xcLtng_8vxkBls-_FMlrRKJn6APBFygmXUjbhfqEkVh6qoaSDwlCIdOZ/exec';
     // ****** ******************************************** ******
 
     const menuItems = document.querySelectorAll('.menu-item');
-    const contentSections = document.querySelectorAll('.content-section');
+    const contentSections = document.querySelectorAll('.content-section')
     const uploadForm = document.getElementById('uploadForm');
     const messageDiv = document.getElementById('message');
     const resultsList = document.getElementById('results-list');
@@ -43,17 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(uploadForm);
         const data = {
             action: 'upload', // 添加 action 字段，告诉 Apps Script 这是上传操作
-            speedometerScore: parseFloat(formData.get('speedometerScore')),
-            // 误差现在也是数字，所以也用 parseFloat
-            speedometerError: parseFloat(formData.get('speedometerError')),
+            // 不再使用 parseFloat，直接获取字符串值
+            speedometerScore: formData.get('speedometerScore'),
+            speedometerError: formData.get('speedometerError'),
             browserVersion: formData.get('browserVersion'),
             cpuInfo: formData.get('cpuInfo'),
             timestamp: new Date().toISOString() // 添加时间戳
         };
 
-        // 简易验证：确保分数和误差都是有效的数字
-        if (isNaN(data.speedometerScore) || isNaN(data.speedometerError) || !data.browserVersion || !data.cpuInfo) {
-            showMessage('请填写所有必填字段，并确保分数和误差为有效数字。', 'error');
+        // 简易验证：只检查字段是否为空字符串 (required 属性已经保证不完全为空)
+        if (!data.speedometerScore || !data.speedometerError || !data.browserVersion || !data.cpuInfo) {
+            showMessage('请填写所有必填字段。', 'error');
             return;
         }
 
@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     responseData.results.forEach(result => {
                         const listItem = document.createElement('li');
+                        // 显示误差时，可以根据需要添加 "%" 符号，或者直接显示数字
                         listItem.innerHTML = `
                             <strong>分数:</strong> ${result.SpeedometerScore || 'N/A'} ±${result.SpeedometerError || 'N/A'}<br>
                             <strong>浏览器:</strong> ${result.BrowserVersion || 'N/A'}<br>
