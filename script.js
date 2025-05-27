@@ -1,16 +1,8 @@
-//
-//  script.js
-//  
-//
-//  Created by Celestial紗雪 on 2025/5/28.
-//
-
-
 document.addEventListener('DOMContentLoaded', () => {
     // ****** 请替换为你的 Google Apps Script Web App URL ******
     // 这个 URL 是你部署 Google Apps Script 为 Web App 后获得的。
     // 它将同时处理上传 (POST 请求) 和读取 (GET 请求) 操作。
-    const GOOGLE_SHEETS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzTrWt5OUVKfQr3GU2NB051AiF7JUulH-iFf9HGFBr8pQNdMdfZ4R3JmNOhIIDnwvsy/exec';
+    const GOOGLE_SHEETS_WEB_APP_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
     // ****** ******************************************** ******
 
     const menuItems = document.querySelectorAll('.menu-item');
@@ -31,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // 隐藏所有内容区
             contentSections.forEach(section => section.classList.remove('active'));
 
-            // 显示目标内容区
             const targetId = item.dataset.target;
             const targetSection = document.getElementById(targetId);
             if (targetSection) {
@@ -53,15 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = {
             action: 'upload', // 添加 action 字段，告诉 Apps Script 这是上传操作
             speedometerScore: parseFloat(formData.get('speedometerScore')),
-            speedometerError: formData.get('speedometerError'),
+            // 误差现在也是数字，所以也用 parseFloat
+            speedometerError: parseFloat(formData.get('speedometerError')),
             browserVersion: formData.get('browserVersion'),
             cpuInfo: formData.get('cpuInfo'),
             timestamp: new Date().toISOString() // 添加时间戳
         };
 
-        // 简易验证
-        if (isNaN(data.speedometerScore) || !data.speedometerError || !data.browserVersion || !data.cpuInfo) {
-            showMessage('请填写所有必填字段。', 'error');
+        // 简易验证：确保分数和误差都是有效的数字
+        if (isNaN(data.speedometerScore) || isNaN(data.speedometerError) || !data.browserVersion || !data.cpuInfo) {
+            showMessage('请填写所有必填字段，并确保分数和误差为有效数字。', 'error');
             return;
         }
 
@@ -108,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     responseData.results.forEach(result => {
                         const listItem = document.createElement('li');
                         listItem.innerHTML = `
-                            <strong>分数:</strong> ${result.SpeedometerScore || 'N/A'} ${result.SpeedometerError || ''}<br>
+                            <strong>分数:</strong> ${result.SpeedometerScore || 'N/A'} ±${result.SpeedometerError || 'N/A'}<br>
                             <strong>浏览器:</strong> ${result.BrowserVersion || 'N/A'}<br>
                             <strong>CPU:</strong> ${result.CpuInfo || 'N/A'}<br>
                             <p>上传时间: ${new Date(result.Timestamp).toLocaleString()}</p>
