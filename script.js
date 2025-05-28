@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingMessage = document.getElementById('loading-message');
     const browserVersionInput = document.getElementById('browserVersion');
 
-    // ****** 统一的浏览器版本自动填充函数 (更新Safari逻辑) ******
+// ****** 统一的浏览器版本自动填充函数 (更新浏览器判断逻辑) ******
     function autofillBrowserInfo() {
         if (!browserVersionInput) return;
 
@@ -30,54 +30,60 @@ document.addEventListener('DOMContentLoaded', () => {
         let browserName = '未知浏览器';
         let browserVersion = '未知版本';
 
-        if (userAgent.includes('Edg')) { // Edge (Chromium based)
+        // 1. 检查 Edge (Edg/)
+        if (userAgent.includes('Edg/')) { // 注意 'Edg/' 以区分旧版 EdgeHTML
             browserName = 'Edge';
-            const edgeVersion = userAgent.match(/Edg\/(\d+\.\d+\.\d+\.\d+)/);
+            const edgeVersion = userAgent.match(/Edg\/(\d+(\.\d+){1,3})/); // 匹配 Edg/X.Y.Z.W
             if (edgeVersion && edgeVersion[1]) {
                 browserVersion = edgeVersion[1];
             }
-        } else if (userAgent.includes('Firefox')) { // Firefox
-            browserName = 'Firefox';
-            const firefoxVersion = userAgent.match(/Firefox\/(\d+\.\d+)/);
-            if (firefoxVersion && firefoxVersion[1]) {
-                browserVersion = firefoxVersion[1];
-            }
-        } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) { // Opera
+        }
+        // 2. 检查 Opera (OPR/ 或 Opera/)
+        else if (userAgent.includes('OPR/') || userAgent.includes('Opera')) {
             browserName = 'Opera';
-            const operaVersion = userAgent.match(/(OPR|Opera)\/(\d+\.\d+\.\d+\.\d+)/);
+            const operaVersion = userAgent.match(/(OPR|Opera)\/(\d+(\.\d+){1,3})/);
             if (operaVersion && operaVersion[2]) {
                 browserVersion = operaVersion[2];
             }
-        } else if (userAgent.includes('Chrome') && !userAgent.includes('Safari')) { // Chrome (and not Safari, as Safari UA also contains 'Chrome')
+        }
+        // 3. 检查 Firefox (Firefox/)
+        else if (userAgent.includes('Firefox/')) {
+            browserName = 'Firefox';
+            const firefoxVersion = userAgent.match(/Firefox\/(\d+(\.\d+){0,2})/); // 匹配 Firefox/X.Y or Firefox/X
+            if (firefoxVersion && firefoxVersion[1]) {
+                browserVersion = firefoxVersion[1];
+            }
+        }
+        // 4. 检查 Chrome (Chrome/) - 确保它不是 Edge 或 Opera (那些已经被前面的 if/else if 处理)
+        // 安卓 Chrome UA 通常包含 "Chrome/X.X.X.X" 和 "Mobile Safari/X.X.X"
+        else if (userAgent.includes('Chrome/')) {
             browserName = 'Chrome';
-            const chromeVersion = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
+            const chromeVersion = userAgent.match(/Chrome\/(\d+(\.\d+){1,3})/); // 匹配 Chrome/X.Y.Z.W
             if (chromeVersion && chromeVersion[1]) {
                 browserVersion = chromeVersion[1];
             }
-        } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome') && !userAgent.includes('Edg')) { // Safari (and not Chrome or Edge)
+        }
+        // 5. 检查 Safari (Safari/) - 确保它不是 Chrome, Edge, Opera (那些已经被前面的 if/else if 处理)
+        else if (userAgent.includes('Safari/')) {
             browserName = 'Safari';
             // 优先尝试从 'Version/X.Y' 提取 (常见于桌面版 Safari 和较早的 iOS Safari)
             let safariVersionMatch = userAgent.match(/Version\/(\d+(\.\d+){1,2})/);
             if (safariVersionMatch && safariVersionMatch[1]) {
                 browserVersion = safariVersionMatch[1];
             } else {
-                // 如果没有 'Version/', 则尝试从 'Safari/X.Y' 提取 (常见于较新的 iOS Safari)
-                // 这通常是 WebKit 版本号，但有时也直接对应 Safari 版本
+                // 如果没有 'Version/', 则尝试从 'Safari/X.Y' 提取 (常见于较新的 iOS Safari WebView 或较简单 UA)
+                // 这通常是 WebKit 版本号，但有时也直接对应 Safari 版本或作为唯一可用版本标识
                 safariVersionMatch = userAgent.match(/Safari\/(\d+(\.\d+){1,2})/);
                 if (safariVersionMatch && safariVersionMatch[1]) {
-                    // 为了尽量获取接近 Safari 应用的版本号，而不是纯粹的 WebKit 构建号，
-                    // 这个部分可能需要根据实际 userAgent 字符串的模式进一步细化。
-                    // 对于iOS, 例如 "Safari/604.1", 如果没有 "Version/X.Y", 这个可能是最接近的。
-                    // 如果目标是显示与桌面Safari版本号类似的格式，"Version/X.Y" 是首选。
                     browserVersion = safariVersionMatch[1];
                 }
             }
-            // 根据新需求，不再附加操作系统信息 (如 macOS 或 iOS 版本)
         }
         // 对于其他未知浏览器，将保持 "未知浏览器 未知版本"
 
         browserVersionInput.value = `${browserName} ${browserVersion}`;
     }
+    // ****** (函数结束，脚本的其他部分与之前相同) ******
     // ****** ************************************** ******
 
     // 初始化时自动填充浏览器信息
