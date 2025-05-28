@@ -1,20 +1,23 @@
+/* Original styles from your style.css file */
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif; /* Fallback font-family from your file */
+    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* More modern font stack from your index.html */
     background-color: #f4f4f4;
     margin: 0;
-    display: flex; /* 使用 Flexbox 布局 */
+    display: flex; /* Retained for desktop layout */
     min-height: 100vh;
 }
 
-/* 侧边栏样式 */
+/* Sidebar styles - these will apply for desktop */
 .sidebar {
     width: 250px;
-    background-color: #2c3e50; /* 深蓝色 */
+    background-color: #2c3e50;
     color: white;
     padding: 20px 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
+    transition: transform 0.3s ease-in-out; /* For potential future toggle */
 }
 
 .sidebar .logo {
@@ -22,7 +25,7 @@ body {
     font-weight: bold;
     text-align: center;
     margin-bottom: 30px;
-    color: #4CAF50; /* 绿色 */
+    color: #4CAF50;
 }
 
 .sidebar .menu {
@@ -35,31 +38,31 @@ body {
     padding: 15px 25px;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
-    border-left: 5px solid transparent; /* 未激活状态下透明边框 */
+    border-left: 5px solid transparent;
 }
 
 .sidebar .menu-item:hover {
-    background-color: #34495e; /* 鼠标悬停时的颜色 */
+    background-color: #34495e;
 }
 
 .sidebar .menu-item.active {
-    background-color: #1a242f; /* 激活状态的背景色 */
-    border-left-color: #4CAF50; /* 激活状态的边框颜色 */
+    background-color: #1a242f;
+    border-left-color: #4CAF50;
     color: #4CAF50;
     font-weight: bold;
 }
 
-/* 主内容区样式 */
+/* Main content area styles - base for desktop */
 .main-content {
-    flex-grow: 1; /* 占据剩余空间 */
-    padding: 20px 40px;
+    flex-grow: 1;
+    padding: 20px 40px; /* Desktop padding */
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-    margin: 20px;
-    border-radius: 8px;
+    margin: 20px; /* Desktop margin */
+    border-radius: 8px; /* Desktop border-radius */
+    overflow-y: auto; /* Allow content to scroll if it overflows */
 }
 
-/* 隐藏和显示内容区 */
 .content-section {
     display: none;
 }
@@ -69,10 +72,20 @@ body {
 }
 
 h1, h2 {
-    color: #333;
+    color: #333; /* Original color */
+    /* color: #2c3e50; From index.html - choose one you prefer */
     text-align: center;
     margin-bottom: 20px;
+    /* border-bottom: 2px solid #3498db; From index.html - if you want the underline */
+    /* padding-bottom: 10px; From index.html */
 }
+/* Re-add h2 specific styling from index.html if preferred over generic h1,h2 */
+/* h2 {
+    color: #34495e;
+    margin-top: 30px;
+    margin-bottom: 15px;
+} */
+
 
 ol {
     margin-bottom: 25px;
@@ -92,78 +105,121 @@ a:hover {
     text-decoration: underline;
 }
 
+/* Form styles from your style.css, with minor mobile considerations */
 .form-section {
     margin-top: 30px;
     border-top: 1px solid #eee;
     padding-top: 25px;
+    /* background-color: #fdfdfd; From index.html */
+    /* padding: 25px; From index.html */
+    /* border-radius: 8px; From index.html */
+    /* border: 1px solid #eee; From index.html */
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 18px; /* From index.html, slightly more spacing */
 }
 
-label {
+.form-group label { /* Combined from index.html and style.css */
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px; /* From index.html */
     font-weight: bold;
     color: #555;
 }
 
 input[type="number"],
 input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box; /* Ensures padding doesn't expand the input */
+    width: 100%; /* Already full width, good for mobile */
+    padding: 10px; /* From style.css */
+    /* padding: 12px; Suggested for better touch targets */
+    border: 1px solid #ccc; /* From index.html */
+    border-radius: 5px; /* From index.html */
+    box-sizing: border-box;
+    font-size: 1em; /* From index.html */
 }
 
-button {
+button[type="submit"] { /* Combined from index.html and style.css */
     background-color: #28a745;
     color: white;
-    padding: 12px 20px;
+    padding: 12px 25px; /* From index.html, more padding */
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
-    width: 100%;
-    transition: background-color 0.2s ease;
+    font-size: 1.1em; /* From index.html */
+    width: 100%; /* Good for mobile */
+    transition: background-color 0.3s ease; /* From index.html */
+    margin-top: 10px; /* From index.html */
 }
 
-button:hover {
+button[type="submit"]:hover {
     background-color: #218838;
 }
 
-.hidden {
-    display: none;
+/* Message and Warning Styles from index.html (more specific) */
+.manual-input-warning {
+    background-color: #fff3cd;
+    border-left: 5px solid #ffc107;
+    padding: 15px;
+    margin-bottom: 20px;
+    color: #664d03;
+    border-radius: 5px;
+    font-size: 0.9em; /* Making it slightly smaller for mobile if needed */
 }
+.manual-input-warning p {
+    margin: 0 0 5px 0;
+    font-weight: normal; /* index.html has bold on the <p> itself */
+}
+.manual-input-warning p strong { /* Style the strong tag within p */
+    font-weight: bold;
+}
+
 
 #message {
     margin-top: 20px;
-    padding: 10px;
-    border-radius: 4px;
-    text-align: center;
+    padding: 10px 15px; /* From index.html */
+    border-radius: 5px; /* From index.html */
+    font-weight: bold; /* From index.html */
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    text-align: center; /* From style.css */
 }
-
 #message.success {
     background-color: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
-
 #message.error {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+#message.hidden { /* For JS to control visibility if needed beyond opacity */
+    display: none;
+    opacity: 0;
+}
+#message:not(.hidden) {
+    display: block; /* Or table, or flex, depending on content */
+    opacity: 1;
+}
 
-/* 结果列表样式 */
+/* Results list Styles from index.html (more detailed card style) */
 .results-container {
-    max-height: 600px; /* 设置最大高度并允许滚动 */
-    overflow-y: auto;
-    border: 1px solid #eee;
-    padding: 15px;
-    border-radius: 5px;
+    margin-top: 20px; /* From index.html */
+    /* background-color: #fdfdfd; From index.html */
+    padding: 0; /* Let cards define their padding, or small padding for container */
+    /* border-radius: 8px; From index.html */
+    /* border: 1px solid #eee; From index.html */
+    max-height: none; /* Allow full scroll on mobile page */
+    overflow-y: visible;
+}
+
+#loading-message { /* Style from index.html */
+    text-align: center;
+    padding: 20px;
+    color: #555;
+    font-style: italic;
+    display: none; /* Initially hidden */
 }
 
 #results-list {
@@ -172,19 +228,180 @@ button:hover {
 }
 
 #results-list li {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 10px;
+    background-color: #f9f9f9; /* Base from style.css */
+    /* background-color: #ffffff; Alternative card color */
+    border: 1px solid #ddd; /* Base from style.css */
     padding: 15px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    margin-bottom: 12px; /* More spacing for cards */
+    border-radius: 8px; /* Rounded cards */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow for cards */
 }
 
 #results-list li strong {
-    color: #333;
+    color: #3498db; /* Highlight color for score, or use your brand green #4CAF50 */
+    font-size: 1.2em; /* Make score stand out */
+    display: block;
+    margin-bottom: 5px;
 }
 
 #results-list li p {
-    margin: 5px 0;
+    font-size: 0.9em; /* From index.html */
     color: #666;
+    margin: 5px 0; /* From style.css */
+    line-height: 1.4;
+}
+
+.hidden {
+    display: none !important; /* Ensure this utility class works */
+}
+
+
+/* ----------- MOBILE SPECIFIC STYLES ----------- */
+/* Using 768px as a common breakpoint for tablets/mobile */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column; /* Stack elements vertically on mobile */
+    }
+
+    .sidebar {
+        display: none; /* Hide original sidebar on mobile */
+    }
+
+    .top-app-bar {
+        display: flex; /* Use flex for alignment if needed */
+        align-items: center;
+        justify-content: center; /* Center logo */
+        background-color: #2c3e50; /* Match original sidebar */
+        color: #ecf0f1;
+        padding: 15px;
+        /* position: fixed; */ /* If you want it to stick */
+        /* top: 0; */
+        /* left: 0; */
+        width: 100%;
+        box-sizing: border-box;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .logo-mobile {
+        font-size: 1.5em; /* Adjust size as needed */
+        font-weight: bold;
+        color: #4CAF50; /* Match original logo color */
+    }
+
+    .main-content {
+        margin: 0;
+        padding: 15px; /* Reduced padding for mobile */
+        padding-top: 70px; /* Space for fixed top-app-bar, adjust if not fixed or different height */
+        padding-bottom: 80px; /* Space for fixed bottom-nav, adjust if different height */
+        border-radius: 0;
+        box-shadow: none;
+        height: calc(100vh - 60px - 60px); /* Adjust based on top/bottom bar actual heights if they are fixed */
+        overflow-y: auto; /* Ensure content area is scrollable */
+    }
+
+    h1 {
+        font-size: 1.5em; /* Adjust heading sizes for mobile */
+    }
+
+    h2 {
+        font-size: 1.25em;
+    }
+
+    .speedometer-embed-container {
+        width: 100%;
+        height: 300px; /* Adjust iframe height for mobile */
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+    .speedometer-embed-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    .form-section {
+        padding: 15px; /* Reduced padding */
+    }
+
+    input[type="number"],
+    input[type="text"] {
+        padding: 12px; /* Slightly larger touch target */
+    }
+
+    button[type="submit"] {
+        padding: 15px; /* Larger touch target */
+        font-size: 1.1em;
+    }
+
+    .results-container {
+        padding: 0; /* Remove container padding if cards have their own */
+    }
+
+    #results-list li {
+        padding: 12px; /* Adjust card padding */
+    }
+
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #ffffff;
+        border-top: 1px solid #e0e0e0;
+        box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+        z-index: 1000;
+    }
+
+    .bottom-nav .nav-item {
+        flex: 1;
+        padding: 12px 5px; /* Adjust padding */
+        text-align: center;
+        cursor: pointer;
+        color: #7f8c8d; /* Default color */
+        font-size: 0.85em; /* Adjust font size */
+        display: flex;
+        flex-direction: column; /* Stack icon and text if you use icons */
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s ease;
+    }
+    /* If using icons: */
+    /* .bottom-nav .nav-item i {
+        font-size: 1.6em;
+        margin-bottom: 4px;
+    } */
+
+    .bottom-nav .nav-item.active {
+        color: #3498db; /* Active color - choose your brand's active color e.g. #4CAF50 */
+        /* border-top: 3px solid #3498db; Or use a border for indication */
+        /* background-color: #f0f0f0; Or a slight background change */
+    }
+    .bottom-nav .nav-item.active span {
+        font-weight: bold;
+    }
+}
+
+/* Further adjustments for very small screens if needed */
+@media (max-width: 360px) {
+    .main-content {
+        padding: 10px;
+        padding-top: 65px; /* Adjust if top-app-bar height changes */
+        padding-bottom: 75px; /* Adjust if bottom-nav height changes */
+    }
+    h1 {
+        font-size: 1.3em;
+    }
+    h2 {
+        font-size: 1.1em;
+    }
+    .bottom-nav .nav-item {
+        font-size: 0.8em;
+    }
+    /* .bottom-nav .nav-item i {
+        font-size: 1.5em;
+    } */
 }
