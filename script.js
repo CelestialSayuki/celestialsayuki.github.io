@@ -2,16 +2,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // ****** Firebase 配置 - 请替换为您的 Firebase 项目配置 ******
     // 从 Firebase 控制台 -> 项目设置 -> 您的应用 -> 选择您的 Web 应用 -> 复制配置
     const firebaseConfig = {
-      apiKey: "AIzaSyAdRlF2QHuVPBI86khxM-4YT06VSY0-s_0", // 替换为您的 apiKey
-      authDomain: "speedometerdatauploader.firebaseapp.com", // 替换为您的 authDomain
-      projectId: "speedometerdatauploader", // 替换为您的 projectId
-      storageBucket: "speedometerdatauploader.firebasestorage.app", // 替换为您的 storageBucket
-      messagingSenderId: "61305463721", // 替换为您的 messagingSenderId
-      appId: "1:61305463721:web:6398ea7898ca75ba135ab8" // 替换为您的 appId
+      apiKey: "AIzaSyAdRlF2QHuVPBI86khxM-4YT06VSY0-s_0",
+      authDomain: "speedometerdatauploader.firebaseapp.com", // 替换为您的 authDomain (例如："your-project-id.firebaseapp.com")
+      projectId: "speedometerdatauploader", // 替换为您的 projectId (例如："your-project-id")
+      storageBucket: "speedometerdatauploader.firebasestorage.app", // 替换为您的 storageBucket (例如："your-project-id.appspot.com")
+      messagingSenderId: "61305463721", // 替换为您的 messagingSenderId (例如："123456789012")
+      appId: "1:61305463721:web:6398ea7898ca75ba135ab8" // 替换为您的 appId (例如："1:123456789012:web:abcdef1234567890abcdef")
     };
 
     // 初始化 Firebase
-    // 确保您已经在 index.html 中引入了 Firebase SDKs
+    // 确保您已经在 index.html 中通过 <script> 标签引入了 Firebase SDKs
+    // 例如：
     // <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     // <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     firebase.initializeApp(firebaseConfig);
@@ -24,6 +25,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageDiv = document.getElementById('message');
     const resultsList = document.getElementById('results-list');
     const loadingMessage = document.getElementById('loading-message');
+
+    // 获取浏览器版本输入框
+    const browserVersionInput = document.getElementById('browserVersion');
+
+    // ****** 自动填充浏览器版本信息 ******
+    if (browserVersionInput) {
+        let userAgent = navigator.userAgent;
+        let browserName = '未知浏览器';
+        let browserVersion = '未知版本';
+
+        // 简易解析 userAgent 字符串以获取浏览器信息
+        if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
+            browserName = 'Chrome';
+            const chromeVersion = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
+            if (chromeVersion && chromeVersion[1]) {
+                browserVersion = chromeVersion[1];
+            }
+        } else if (userAgent.includes('Firefox')) {
+            browserName = 'Firefox';
+            const firefoxVersion = userAgent.match(/Firefox\/(\d+\.\d+)/);
+            if (firefoxVersion && firefoxVersion[1]) {
+                browserVersion = firefoxVersion[1];
+            }
+        } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+            browserName = 'Safari';
+            const safariVersion = userAgent.match(/Version\/(\d+\.\d+(\.\d+)?)/);
+            if (safariVersion && safariVersion[1]) {
+                browserVersion = safariVersion[1];
+            }
+            const osxVersion = userAgent.match(/Mac OS X (\d+_\d+(_\d+)?)/);
+            if (osxVersion && osxVersion[1]) {
+                // Safari 还会包含 OS X 版本，可以合并显示
+                browserVersion += ` (macOS ${osxVersion[1].replace(/_/g, '.')})`;
+            }
+        } else if (userAgent.includes('Edg')) {
+            browserName = 'Edge';
+            const edgeVersion = userAgent.match(/Edg\/(\d+\.\d+\.\d+\.\d+)/);
+            if (edgeVersion && edgeVersion[1]) {
+                browserVersion = edgeVersion[1];
+            }
+        } else if (userAgent.includes('Opera') || userAgent.includes('OPR')) {
+            browserName = 'Opera';
+            const operaVersion = userAgent.match(/(Opera|OPR)\/(\d+\.\d+\.\d+\.\d+)/);
+            if (operaVersion && operaVersion[2]) {
+                browserVersion = operaVersion[2];
+            }
+        }
+
+        // 将识别到的浏览器信息填充到输入框
+        browserVersionInput.value = `${browserName} ${browserVersion}`;
+    }
+    // ****** 自动填充浏览器版本信息结束 ******
 
     // 侧边栏菜单切换逻辑
     menuItems.forEach(item => {
@@ -76,6 +129,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showMessage('结果上传成功，已保存到 Firebase Firestore！', 'success');
             uploadForm.reset(); // 清空表单
+            // 重新填充浏览器版本，因为 reset() 会清空它
+            if (browserVersionInput) {
+                 // 重新填充浏览器版本信息 (逻辑与初始化时相同)
+                 let userAgent = navigator.userAgent;
+                 let browserName = '未知浏览器';
+                 let browserVersion = '未知版本';
+
+                 if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
+                     browserName = 'Chrome';
+                     const chromeVersion = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
+                     if (chromeVersion && chromeVersion[1]) {
+                         browserVersion = chromeVersion[1];
+                     }
+                 } else if (userAgent.includes('Firefox')) {
+                     browserName = 'Firefox';
+                     const firefoxVersion = userAgent.match(/Firefox\/(\d+\.\d+)/);
+                     if (firefoxVersion && firefoxVersion[1]) {
+                         browserVersion = firefoxVersion[1];
+                     }
+                 } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+                     browserName = 'Safari';
+                     const safariVersion = userAgent.match(/Version\/(\d+\.\d+(\.\d+)?)/);
+                     if (safariVersion && safariVersion[1]) {
+                         browserVersion = safariVersion[1];
+                     }
+                     const osxVersion = userAgent.match(/Mac OS X (\d+_\d+(_\d+)?)/);
+                     if (osxVersion && osxVersion[1]) {
+                         browserVersion += ` (macOS ${osxVersion[1].replace(/_/g, '.')})`;
+                     }
+                 } else if (userAgent.includes('Edg')) {
+                     browserName = 'Edge';
+                     const edgeVersion = userAgent.match(/Edg\/(\d+\.\d+\.\d+\.\d+)/);
+                     if (edgeVersion && edgeVersion[1]) {
+                         browserVersion = edgeVersion[1];
+                     }
+                 } else if (userAgent.includes('Opera') || userAgent.includes('OPR')) {
+                     browserName = 'Opera';
+                     const operaVersion = userAgent.match(/(Opera|OPR)\/(\d+\.\d+\.\d+\.\d+)/);
+                     if (operaVersion && operaVersion[2]) {
+                         browserVersion = operaVersion[2];
+                     }
+                 }
+                 browserVersionInput.value = `${browserName} ${browserVersion}`;
+            }
         } catch (error) {
             console.error('上传结果失败:', error);
             showMessage(`上传结果失败: ${error.message || '未知错误'}`, 'error');
@@ -126,18 +223,19 @@ document.addEventListener('DOMContentLoaded', () => {
         messageDiv.textContent = msg;
         messageDiv.className = ''; // 清除之前的类
         messageDiv.classList.add(type); // 添加新的类型类 (success/error)
-        messageDiv.classList.remove('hidden'); // 显示消息
+        messageDiv.classList.remove('hidden'); // 确保移除 hidden 类
+
         // 确保消息可见，然后才开始隐藏计时
         messageDiv.style.display = 'block';
         messageDiv.style.opacity = '1';
 
         setTimeout(() => {
             messageDiv.style.opacity = '0';
-            // 完全透明后才隐藏 display
+            // 完全透明后才隐藏 display，以完成过渡效果
             setTimeout(() => {
                 messageDiv.style.display = 'none';
                 messageDiv.classList.add('hidden'); // 保持 hidden 类，以便下次显示时重置
-            }, 500); // 等待过渡完成
-        }, 5000);
+            }, 500); // 等待过渡完成的时间 (与 CSS 中的 transition-duration 匹配)
+        }, 5000); // 消息显示 5 秒后开始隐藏
     }
 });
