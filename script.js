@@ -22,70 +22,74 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingMessage = document.getElementById('loading-message');
     const browserVersionInput = document.getElementById('browserVersion');
 
-    // ****** 自动填充浏览器版本信息函数 ******
+    // ****** 统一的浏览器版本自动填充函数 (更新Safari逻辑) ******
     function autofillBrowserInfo() {
         if (!browserVersionInput) return;
 
         let userAgent = navigator.userAgent;
         let browserName = '未知浏览器';
         let browserVersion = '未知版本';
-        let osInfo = ''; // For specific OS details like macOS version for Safari
 
-        // Detailed User Agent Parsing
-        if (/Edg\/([\d.]+)/.test(userAgent)) {
+        if (userAgent.includes('Edg')) { // Edge (Chromium based)
             browserName = 'Edge';
-            browserVersion = RegExp.$1;
-        } else if (/Firefox\/([\d.]+)/.test(userAgent)) {
+            const edgeVersion = userAgent.match(/Edg\/(\d+\.\d+\.\d+\.\d+)/);
+            if (edgeVersion && edgeVersion[1]) {
+                browserVersion = edgeVersion[1];
+            }
+        } else if (userAgent.includes('Firefox')) { // Firefox
             browserName = 'Firefox';
-            browserVersion = RegExp.$1;
-        } else if (/OPR\/([\d.]+)/.test(userAgent) || /Opera\/([\d.]+)/.test(userAgent)) {
+            const firefoxVersion = userAgent.match(/Firefox\/(\d+\.\d+)/);
+            if (firefoxVersion && firefoxVersion[1]) {
+                browserVersion = firefoxVersion[1];
+            }
+        } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) { // Opera
             browserName = 'Opera';
-            browserVersion = RegExp.$1 || userAgent.match(/Opera\/([\d.]+)/)[1]; // OPR or Opera
-        } else if (/Chrome\/([\d.]+)/.test(userAgent) && !/Edg/.test(userAgent)) { // Ensure not Edge masquerading as Chrome
+            const operaVersion = userAgent.match(/(OPR|Opera)\/(\d+\.\d+\.\d+\.\d+)/);
+            if (operaVersion && operaVersion[2]) {
+                browserVersion = operaVersion[2];
+            }
+        } else if (userAgent.includes('Chrome') && !userAgent.includes('Safari')) { // Chrome (and not Safari, as Safari UA also contains 'Chrome')
             browserName = 'Chrome';
-            browserVersion = RegExp.$1;
-        } else if (/Safari\/([\d.]+)/.test(userAgent) && !/Chrome/.test(userAgent) && !/Edg/.test(userAgent)) { // Ensure not Chrome/Edge
+            const chromeVersion = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
+            if (chromeVersion && chromeVersion[1]) {
+                browserVersion = chromeVersion[1];
+            }
+        } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome') && !userAgent.includes('Edg')) { // Safari (and not Chrome or Edge)
             browserName = 'Safari';
-            // Try to get version from "Version/" first, then "Safari/"
-            const versionMatch = userAgent.match(/Version\/([\d.]+)/);
-            if (versionMatch && versionMatch[1]) {
-                browserVersion = versionMatch[1];
+            // 优先尝试从 'Version/X.Y' 提取 (常见于桌面版 Safari 和较早的 iOS Safari)
+            let safariVersionMatch = userAgent.match(/Version\/(\d+(\.\d+){1,2})/);
+            if (safariVersionMatch && safariVersionMatch[1]) {
+                browserVersion = safariVersionMatch[1];
             } else {
-                const safariVersionMatch = userAgent.match(/Safari\/([\d.]+)/);
+                // 如果没有 'Version/', 则尝试从 'Safari/X.Y' 提取 (常见于较新的 iOS Safari)
+                // 这通常是 WebKit 版本号，但有时也直接对应 Safari 版本
+                safariVersionMatch = userAgent.match(/Safari\/(\d+(\.\d+){1,2})/);
                 if (safariVersionMatch && safariVersionMatch[1]) {
+                    // 为了尽量获取接近 Safari 应用的版本号，而不是纯粹的 WebKit 构建号，
+                    // 这个部分可能需要根据实际 userAgent 字符串的模式进一步细化。
+                    // 对于iOS, 例如 "Safari/604.1", 如果没有 "Version/X.Y", 这个可能是最接近的。
+                    // 如果目标是显示与桌面Safari版本号类似的格式，"Version/X.Y" 是首选。
                     browserVersion = safariVersionMatch[1];
                 }
             }
-            // Check for macOS version for Safari
-            const osxMatch = userAgent.match(/Mac OS X ([\d_]+)/);
-            if (osxMatch && osxMatch[1]) {
-                osInfo = ` (macOS ${osxMatch[1].replace(/_/g, '.')})`;
-            }
-            // Check for iOS version for Safari
-            const iOSMatch = userAgent.match(/CPU OS ([\d_]+) like Mac OS X/);
-            if (iOSMatch && iOSMatch[1]) {
-                 // The label asks for system version for Safari users (e.g., iOS 18.5)
-                browserVersionInput.value = `iOS ${iOSMatch[1].replace(/_/g, '.')}`;
-                return; // Early exit if iOS is detected and set
-            }
+            // 根据新需求，不再附加操作系统信息 (如 macOS 或 iOS 版本)
         }
-        browserVersionInput.value = `${browserName} ${browserVersion}${osInfo}`;
+        // 对于其他未知浏览器，将保持 "未知浏览器 未知版本"
+
+        browserVersionInput.value = `${browserName} ${browserVersion}`;
     }
-    // ****** 自动填充浏览器版本信息结束 ******
+    // ****** ************************************** ******
 
     // 初始化时自动填充浏览器信息
     autofillBrowserInfo();
 
     // ****** 统一的标签页激活函数 ******
     function activateTab(targetId) {
-        // 隐藏所有内容区
         contentSections.forEach(section => section.classList.remove('active'));
-        // 激活目标内容区
         const targetSection = document.getElementById(targetId);
         if (targetSection) {
             targetSection.classList.add('active');
 
-            // 更新侧边栏菜单项的 active 状态
             sidebarMenuItems.forEach(item => {
                 item.classList.remove('active');
                 if (item.dataset.target === targetId) {
@@ -93,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // 更新底部导航项的 active 状态
             bottomNavItems.forEach(item => {
                 item.classList.remove('active');
                 if (item.dataset.target === targetId) {
@@ -101,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // 如果切换到“查看已上传结果”部分，则加载数据
             if (targetId === 'results-section') {
                 loadUploadedResults();
             }
@@ -109,35 +111,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // ****** *********************** ******
 
-    // 侧边栏菜单切换逻辑
     sidebarMenuItems.forEach(item => {
         item.addEventListener('click', () => {
             activateTab(item.dataset.target);
         });
     });
 
-    // 底部导航菜单切换逻辑
     bottomNavItems.forEach(item => {
         item.addEventListener('click', () => {
             activateTab(item.dataset.target);
         });
     });
 
-    // 初始化：确保默认激活的标签页在所有导航中都激活
     const initiallyActiveSection = document.querySelector('.content-section.active');
     if (initiallyActiveSection) {
         activateTab(initiallyActiveSection.id);
     }
 
-
-    // 表单提交逻辑 (上传结果)
     uploadForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const formData = new FormData(uploadForm);
         const data = {
             speedometerScore: formData.get('speedometerScore'),
             speedometerError: formData.get('speedometerError'),
-            browserVersion: formData.get('browserVersion'),
+            browserVersion: formData.get('browserVersion'), // 此处获取的是 readonly 输入框的值
             cpuInfo: formData.get('cpuInfo'),
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
@@ -151,16 +148,16 @@ document.addEventListener('DOMContentLoaded', () => {
             await db.collection('speedometer_results').add(data);
             showMessage('结果上传成功，已保存到 Firebase Firestore！', 'success');
             uploadForm.reset();
-            autofillBrowserInfo(); // 表单重置后重新填充浏览器信息
+            autofillBrowserInfo(); // 表单重置后重新填充浏览器信息，使用更新后的逻辑
+
         } catch (error) {
             console.error('上传结果失败:', error);
             showMessage(`上传结果失败: ${error.message || '未知错误'}`, 'error');
         }
     });
 
-    // 加载已上传结果的逻辑
     async function loadUploadedResults() {
-        if (!resultsList || !loadingMessage) return; // Guard clause
+        if (!resultsList || !loadingMessage) return;
         resultsList.innerHTML = '';
         loadingMessage.style.display = 'block';
 
@@ -176,66 +173,60 @@ document.addEventListener('DOMContentLoaded', () => {
                     const listItem = document.createElement('li');
                     const uploadTime = result.timestamp ? result.timestamp.toDate().toLocaleString() : 'N/A';
 
-                    // Using textContent for security and proper display of data
                     const scoreEl = document.createElement('strong');
                     scoreEl.textContent = `分数: ${result.speedometerScore || 'N/A'}`;
+                    listItem.appendChild(scoreEl);
+                    listItem.appendChild(document.createElement('br'));
 
-                    const errorEl = document.createElement('p');
-                    errorEl.textContent = `误差: ${result.speedometerError || 'N/A'}`;
-                    
-                    const browserEl = document.createElement('p');
-                    browserEl.textContent = `浏览器/系统: ${result.browserVersion || 'N/A'}`;
-                    
-                    const cpuEl = document.createElement('p');
-                    cpuEl.textContent = `CPU: ${result.cpuInfo || 'N/A'}`;
+                    const errorText = document.createTextNode(`误差: ${result.speedometerError || 'N/A'}`);
+                    listItem.appendChild(errorText);
+                    listItem.appendChild(document.createElement('br'));
+
+                    const browserText = document.createTextNode(`浏览器: ${result.browserVersion || 'N/A'}`);
+                    listItem.appendChild(browserText);
+                    listItem.appendChild(document.createElement('br'));
+
+                    const cpuText = document.createTextNode(`CPU: ${result.cpuInfo || 'N/A'}`);
+                    listItem.appendChild(cpuText);
+                    listItem.appendChild(document.createElement('br'));
 
                     const timeEl = document.createElement('p');
-                    timeEl.className = 'upload-time'; // For potential specific styling
                     timeEl.textContent = `上传时间: ${uploadTime}`;
-
-                    listItem.appendChild(scoreEl);
-                    listItem.appendChild(errorEl);
-                    listItem.appendChild(browserEl);
-                    listItem.appendChild(cpuEl);
                     listItem.appendChild(timeEl);
+
                     resultsList.appendChild(listItem);
                 });
             } else {
                 resultsList.innerHTML = '<li><p>暂无上传结果。</p></li>';
             }
-        } catch (error) {
+        } catch (error)
+        {
             console.error('加载结果失败:', error);
             loadingMessage.style.display = 'none';
             resultsList.innerHTML = `<li><p class="error-message">加载结果失败: ${error.message || '未知错误'}</p></li>`;
         }
     }
 
-    // 显示消息的辅助函数
     function showMessage(msg, type) {
-        if (!messageDiv) return; // Guard clause
+        if (!messageDiv) return;
         messageDiv.textContent = msg;
-        messageDiv.className = ''; // Clear previous classes before adding new ones
-        messageDiv.classList.add(type); // 'success' or 'error'
-        messageDiv.classList.remove('hidden'); // Make sure it's not display:none from .hidden
+        messageDiv.className = '';
+        messageDiv.classList.add(type);
+        messageDiv.classList.remove('hidden');
 
-        // Trigger reflow to ensure transition plays
         void messageDiv.offsetWidth;
-        
-        messageDiv.style.display = 'block'; // Should be handled by removing .hidden mostly
+
+        messageDiv.style.display = 'block';
         messageDiv.style.opacity = '1';
 
         setTimeout(() => {
             messageDiv.style.opacity = '0';
             setTimeout(() => {
-                // Only add 'hidden' if you intend to use it to control display:none
-                // If CSS controls display via opacity and a general .hidden class, ensure consistency
                 messageDiv.style.display = 'none';
-                // messageDiv.classList.add('hidden'); // Re-add if needed for initial state
-            }, 500); // Match CSS transition time
+            }, 500);
         }, 5000);
     }
 
-    // Initial load if results section is active by default (though usually upload is first)
     if (document.getElementById('results-section')?.classList.contains('active')) {
         loadUploadedResults();
     }
