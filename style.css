@@ -1,99 +1,13 @@
-/* Original styles from your style.css file */
+/* ==========================================================================
+   基础和全局样式
+   ========================================================================== */
 body {
-    font-family: Arial, sans-serif; /* Fallback font-family from your file */
-    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* More modern font stack from your index.html */
+    font-family: Arial, sans-serif; /* 您 style.css 中的字体 */
+    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 您 index.html 中的字体，可按需选择 */
     background-color: #f4f4f4;
     margin: 0;
-    display: flex; /* Retained for desktop layout */
+    display: flex; /* 桌面端布局：侧边栏 + 主内容 */
     min-height: 100vh;
-}
-
-/* Sidebar styles - these will apply for desktop */
-.sidebar {
-    width: 250px;
-    background-color: #2c3e50;
-    color: white;
-    padding: 20px 0;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease-in-out; /* For potential future toggle */
-}
-
-.sidebar .logo {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 30px;
-    color: #4CAF50;
-}
-
-.sidebar .menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.sidebar .menu-item {
-    padding: 15px 25px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    border-left: 5px solid transparent;
-}
-
-.sidebar .menu-item:hover {
-    background-color: #34495e;
-}
-
-.sidebar .menu-item.active {
-    background-color: #1a242f;
-    border-left-color: #4CAF50;
-    color: #4CAF50;
-    font-weight: bold;
-}
-
-/* Main content area styles - base for desktop */
-.main-content {
-    flex-grow: 1;
-    padding: 20px 40px; /* Desktop padding */
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-    margin: 20px; /* Desktop margin */
-    border-radius: 8px; /* Desktop border-radius */
-    overflow-y: auto; /* Allow content to scroll if it overflows */
-}
-
-.content-section {
-    display: none;
-}
-
-.content-section.active {
-    display: block;
-}
-
-h1, h2 {
-    color: #333; /* Original color */
-    /* color: #2c3e50; From index.html - choose one you prefer */
-    text-align: center;
-    margin-bottom: 20px;
-    /* border-bottom: 2px solid #3498db; From index.html - if you want the underline */
-    /* padding-bottom: 10px; From index.html */
-}
-/* Re-add h2 specific styling from index.html if preferred over generic h1,h2 */
-/* h2 {
-    color: #34495e;
-    margin-top: 30px;
-    margin-bottom: 15px;
-} */
-
-
-ol {
-    margin-bottom: 25px;
-    padding-left: 20px;
-}
-
-ol li {
-    margin-bottom: 10px;
 }
 
 a {
@@ -105,57 +19,216 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Form styles from your style.css, with minor mobile considerations */
-.form-section {
-    margin-top: 30px;
-    border-top: 1px solid #eee;
-    padding-top: 25px;
-    /* background-color: #fdfdfd; From index.html */
-    /* padding: 25px; From index.html */
-    /* border-radius: 8px; From index.html */
-    /* border: 1px solid #eee; From index.html */
+.hidden {
+    display: none !important;
 }
 
-.form-group {
-    margin-bottom: 18px; /* From index.html, slightly more spacing */
+/* ==========================================================================
+   桌面端侧边栏样式 (.sidebar)
+   ========================================================================== */
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50; /* 深蓝色 */
+    color: white; /* 您 style.css 中的颜色 */
+    /* color: #ecf0f1; /* 您 index.html 中的颜色 */
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex; /* 默认在桌面端显示 */
+    flex-direction: column;
 }
 
-.form-group label { /* Combined from index.html and style.css */
+.sidebar .logo { /* 对应桌面端侧边栏内的 Logo */
+    font-size: 24px; /* 您 style.css 中的字号 */
+    /* font-size: 1.8em; /* 您 index.html 中的字号 */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #4CAF50; /* 您 style.css 中的绿色 */
+    /* color: #3498db; /* 您 index.html 中的蓝色 */
+}
+
+.sidebar .menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar .menu-item {
+    padding: 15px 25px; /* 您 style.css 中的 padding */
+    /* padding: 15px 20px; /* 您 index.html 中的 padding */
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-left: 5px solid transparent;
+    font-size: 1.1em; /* 您 index.html 中的字号，若 style.css 无定义则采用此 */
+}
+
+.sidebar .menu-item:hover {
+    background-color: #34495e;
+    /* color: #ffffff; /* index.html 中定义的悬停文字颜色 */
+}
+
+.sidebar .menu-item.active {
+    background-color: #1a242f; /* 您 style.css 中的激活背景色 */
+    /* background-color: #3498db; /* 您 index.html 中的激活背景色 */
+    border-left-color: #4CAF50; /* 您 style.css 中的激活边框色 */
+    /* border-left-color: #2980b9; /* 您 index.html 中的激活边框色 */
+    color: #4CAF50; /* 您 style.css 中的激活文字颜色 */
+    /* color: #ffffff; /* 您 index.html 中的激活文字颜色 */
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   移动端顶部应用栏 (.top-app-bar) - 默认隐藏
+   ========================================================================== */
+.top-app-bar {
+    display: none; /* 桌面端默认隐藏 */
+    align-items: center;
+    justify-content: center;
+    background-color: #2c3e50; /* 与侧边栏颜色协调 */
+    color: #ecf0f1;
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 1000; /* 确保在顶层 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* 如果希望移动端顶部栏固定，请在 mobile media query 中添加 position: fixed; top: 0; left: 0; */
+}
+
+.top-app-bar .logo-mobile { /* 对应移动端顶部栏的 Logo 文字 */
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #3498db; /* 使用 index.html 中 sidebar logo 的颜色，或 #4CAF50 */
+    margin: 0;
+}
+
+
+/* ==========================================================================
+   移动端底部导航栏 (.bottom-nav) - 默认隐藏
+   ========================================================================== */
+.bottom-nav {
+    display: none; /* 桌面端默认隐藏 */
+    position: fixed; /* 固定在底部 */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #ffffff;
+    border-top: 1px solid #e0e0e0; /* 比 #ddd 稍浅，更精致 */
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+    z-index: 1000; /* 确保在顶层 */
+}
+
+.bottom-nav .nav-item {
+    flex: 1;
+    padding: 10px 5px; /* 上下10px, 左右5px */
+    text-align: center;
+    cursor: pointer;
+    color: #7f8c8d; /* 未选中项的颜色 */
+    font-size: 0.9em; /* 标签文字大小 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+/* 如果使用图标，可以为图标设置样式 */
+/* .bottom-nav .nav-item i {
+    font-size: 1.5em; 桌面图标大小
+    margin-bottom: 3px;
+} */
+
+.bottom-nav .nav-item.active {
+    color: #3498db; /* 选中项的颜色，与 index.html 中 sidebar.active 协调 */
+    /* color: #4CAF50; 或者使用 style.css 中的绿色 */
+}
+.bottom-nav .nav-item.active span { /* 使选中项的文字加粗 */
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   主内容区域 (.main-content)
+   ========================================================================== */
+.main-content {
+    flex-grow: 1;
+    padding: 20px 40px; /* 桌面端 padding (来自 style.css) */
+    /* padding: 30px; /* 来自 index.html - 按需调整 */
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); /* 来自 style.css */
+    /* box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* 来自 index.html */
+    margin: 20px; /* 桌面端 margin (来自 style.css) */
+    border-radius: 8px;
+    overflow-y: auto; /* 允许内容区自身滚动 */
+}
+
+/* ==========================================================================
+   内容区块切换 (.content-section)
+   ========================================================================== */
+.content-section {
+    display: none;
+}
+
+.content-section.active {
     display: block;
-    margin-bottom: 8px; /* From index.html */
+}
+
+/* ==========================================================================
+   标题和文本样式 (h1, h2, p, ol, label)
+   ========================================================================== */
+h1 {
+    color: #2c3e50; /* 来自 index.html (更具体) */
+    /* color: #333; /* 来自 style.css */
+    text-align: center; /* 来自 style.css */
+    border-bottom: 2px solid #3498db; /* 来自 index.html */
+    padding-bottom: 10px;
+    margin-bottom: 25px; /* 来自 index.html */
+    /* margin-bottom: 20px; /* 来自 style.css */
+}
+
+h2 {
+    color: #34495e; /* 来自 index.html */
+    /* color: #333; /* 来自 style.css */
+    text-align: center; /* 来自 style.css */
+    margin-top: 30px; /* 来自 index.html */
+    margin-bottom: 15px; /* 来自 index.html */
+    /* margin-bottom: 20px; /* 来自 style.css */
+}
+
+ol {
+    margin-bottom: 25px;
+    padding-left: 20px;
+}
+
+ol li {
+    margin-bottom: 10px;
+}
+
+label { /* 合并自 index.html 和 style.css */
+    display: block;
+    margin-bottom: 8px; /* 来自 index.html */
     font-weight: bold;
     color: #555;
 }
 
-input[type="number"],
-input[type="text"] {
-    width: 100%; /* Already full width, good for mobile */
-    padding: 10px; /* From style.css */
-    /* padding: 12px; Suggested for better touch targets */
-    border: 1px solid #ccc; /* From index.html */
-    border-radius: 5px; /* From index.html */
-    box-sizing: border-box;
-    font-size: 1em; /* From index.html */
+/* ==========================================================================
+   Speedometer iframe 容器
+   ========================================================================== */
+.speedometer-embed-container {
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+    width: 100%;
+    height: 650px; /* 桌面端默认高度 */
+    overflow: hidden;
 }
 
-button[type="submit"] { /* Combined from index.html and style.css */
-    background-color: #28a745;
-    color: white;
-    padding: 12px 25px; /* From index.html, more padding */
+.speedometer-embed-container iframe {
+    width: 100%;
+    height: 100%;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em; /* From index.html */
-    width: 100%; /* Good for mobile */
-    transition: background-color 0.3s ease; /* From index.html */
-    margin-top: 10px; /* From index.html */
 }
 
-button[type="submit"]:hover {
-    background-color: #218838;
-}
-
-/* Message and Warning Styles from index.html (more specific) */
+/* ==========================================================================
+   手动输入警告 (.manual-input-warning)
+   ========================================================================== */
 .manual-input-warning {
     background-color: #fff3cd;
     border-left: 5px solid #ffc107;
@@ -163,63 +236,115 @@ button[type="submit"]:hover {
     margin-bottom: 20px;
     color: #664d03;
     border-radius: 5px;
-    font-size: 0.9em; /* Making it slightly smaller for mobile if needed */
+    font-size: 0.95em; /* 稍作调整 */
 }
+
 .manual-input-warning p {
-    margin: 0 0 5px 0;
-    font-weight: normal; /* index.html has bold on the <p> itself */
+    margin: 0 0 8px 0; /* 段落下边距 */
 }
-.manual-input-warning p strong { /* Style the strong tag within p */
+.manual-input-warning p:last-child {
+    margin-bottom: 0;
+}
+.manual-input-warning p strong { /* 确保 strong 标签加粗 */
     font-weight: bold;
 }
 
+/* ==========================================================================
+   表单区域样式 (.form-section, .form-group, input, button)
+   ========================================================================== */
+.form-section {
+    margin-top: 30px; /* 来自 style.css */
+    border-top: 1px solid #eee; /* 来自 style.css */
+    padding-top: 25px; /* 来自 style.css */
+    background-color: #fdfdfd; /* 来自 index.html */
+    padding: 25px; /* 来自 index.html (覆盖 padding-top) */
+    border-radius: 8px; /* 来自 index.html */
+    border: 1px solid #eee; /* 来自 index.html (覆盖 border-top) */
+}
 
+.form-group {
+    margin-bottom: 18px; /* 来自 index.html (比 style.css 的 15px 稍大) */
+}
+
+input[type="number"],
+input[type="text"] { /* 合并自 index.html 和 style.css */
+    width: 100%; /* 来自 style.css (calc(100% - 22px) 已被 100% + box-sizing: border-box 替代) */
+    padding: 10px; /* 来自 style.css */
+    border: 1px solid #ccc; /* 来自 index.html */
+    border-radius: 5px; /* 来自 index.html (覆盖 style.css 的 4px) */
+    box-sizing: border-box;
+    font-size: 1em; /* 来自 index.html */
+}
+
+button[type="submit"] { /* 合并自 index.html 和 style.css */
+    background-color: #28a745;
+    color: white;
+    padding: 12px 25px; /* 来自 index.html (更具体) */
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em; /* 来自 index.html (覆盖 style.css 的 16px) */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* 来自 index.html (覆盖 style.css 的 0.2s) */
+    margin-top: 10px; /* 来自 index.html */
+    width: auto; /* 桌面端按钮宽度自适应内容，除非特别指定 */
+    /* width: 100%; /* style.css 中为 100%，若桌面端也希望如此则取消注释 */
+}
+
+button[type="submit"]:hover {
+    background-color: #218838;
+}
+
+/* ==========================================================================
+   消息提示区域 (#message)
+   ========================================================================== */
 #message {
     margin-top: 20px;
-    padding: 10px 15px; /* From index.html */
-    border-radius: 5px; /* From index.html */
-    font-weight: bold; /* From index.html */
+    padding: 10px 15px; /* 来自 index.html */
+    border-radius: 5px; /* 来自 index.html (覆盖 style.css 的 4px) */
+    font-weight: bold; /* 来自 index.html */
+    text-align: center; /* 来自 style.css */
     display: none;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
-    text-align: center; /* From style.css */
 }
+
 #message.success {
     background-color: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
+
 #message.error {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
-#message.hidden { /* For JS to control visibility if needed beyond opacity */
-    display: none;
-    opacity: 0;
-}
-#message:not(.hidden) {
-    display: block; /* Or table, or flex, depending on content */
+/* #message.hidden 已被全局 .hidden 取代，或由JS直接控制 display 和 opacity */
+#message:not(.hidden) { /* JS 会移除 hidden 并控制 opacity */
+    display: block; /* 或者其他合适的 display 类型 */
     opacity: 1;
 }
 
-/* Results list Styles from index.html (more detailed card style) */
+
+/* ==========================================================================
+   结果列表区域 (.results-container, #loading-message, #results-list)
+   ========================================================================== */
 .results-container {
-    margin-top: 20px; /* From index.html */
-    /* background-color: #fdfdfd; From index.html */
-    padding: 0; /* Let cards define their padding, or small padding for container */
-    /* border-radius: 8px; From index.html */
-    /* border: 1px solid #eee; From index.html */
-    max-height: none; /* Allow full scroll on mobile page */
-    overflow-y: visible;
+    margin-top: 20px; /* 来自 index.html */
+    background-color: #fdfdfd; /* 来自 index.html */
+    padding: 25px; /* 来自 index.html */
+    border-radius: 8px; /* 来自 index.html */
+    border: 1px solid #eee; /* 来自 index.html (覆盖 style.css 的 results-container 边框) */
+    /* max-height: 600px; /* style.css 中的设定，如果桌面端需要限制高度则保留 */
+    /* overflow-y: auto; /* style.css 中的设定 */
 }
 
-#loading-message { /* Style from index.html */
+#loading-message {
     text-align: center;
     padding: 20px;
     color: #555;
     font-style: italic;
-    display: none; /* Initially hidden */
+    display: none; /* 默认隐藏，由JS控制 */
 }
 
 #results-list {
@@ -227,181 +352,141 @@ button[type="submit"]:hover {
     padding: 0;
 }
 
-#results-list li {
-    background-color: #f9f9f9; /* Base from style.css */
-    /* background-color: #ffffff; Alternative card color */
-    border: 1px solid #ddd; /* Base from style.css */
+#results-list li { /* 卡片式设计，合并自 index.html 和 style.css */
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
     padding: 15px;
-    margin-bottom: 12px; /* More spacing for cards */
-    border-radius: 8px; /* Rounded cards */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow for cards */
+    margin-bottom: 10px;
+    border-radius: 8px; /* 来自 index.html (覆盖 style.css 的 5px) */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 来自 index.html (更具体) */
 }
 
-#results-list li strong {
-    color: #3498db; /* Highlight color for score, or use your brand green #4CAF50 */
-    font-size: 1.2em; /* Make score stand out */
-    display: block;
+#results-list li strong { /* 分数等重要信息 */
+    color: #333; /* 来自 style.css，或 #3498db / #4CAF50 */
+    display: block; /* 使其独占一行，方便后续内容排列 */
     margin-bottom: 5px;
+    font-size: 1.1em; /* 略微突出 */
 }
 
-#results-list li p {
-    font-size: 0.9em; /* From index.html */
+#results-list li p { /* 其他信息，如误差、CPU等 */
+    font-size: 0.9em; /* 来自 index.html */
     color: #666;
-    margin: 5px 0; /* From style.css */
-    line-height: 1.4;
+    margin: 5px 0; /* 来自 style.css */
+    line-height: 1.5; /* 增加行高易读性 */
+}
+#results-list li p.upload-time { /* 如果JS为上传时间添加了这个类 */
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 8px;
 }
 
-.hidden {
-    display: none !important; /* Ensure this utility class works */
-}
 
-
-/* ----------- MOBILE SPECIFIC STYLES ----------- */
-/* Using 768px as a common breakpoint for tablets/mobile */
+/* ==========================================================================
+   移动端响应式样式 ( <= 768px )
+   ========================================================================== */
 @media (max-width: 768px) {
     body {
-        flex-direction: column; /* Stack elements vertically on mobile */
+        flex-direction: column; /* 页面整体垂直排列 */
     }
 
     .sidebar {
-        display: none; /* Hide original sidebar on mobile */
+        display: none !important; /* 在移动端彻底隐藏侧边栏 */
     }
 
     .top-app-bar {
-        display: flex; /* Use flex for alignment if needed */
-        align-items: center;
-        justify-content: center; /* Center logo */
-        background-color: #2c3e50; /* Match original sidebar */
-        color: #ecf0f1;
-        padding: 15px;
-        /* position: fixed; */ /* If you want it to stick */
+        display: flex; /* 显示移动端顶部栏 */
+        /* position: fixed; */ /* 如果希望固定，取消注释并调整 main-content padding-top */
         /* top: 0; */
         /* left: 0; */
-        width: 100%;
-        box-sizing: border-box;
-        z-index: 1000;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .logo-mobile {
-        font-size: 1.5em; /* Adjust size as needed */
-        font-weight: bold;
-        color: #4CAF50; /* Match original logo color */
+    .bottom-nav {
+        display: flex; /* 显示移动端底部导航 */
     }
 
     .main-content {
         margin: 0;
-        padding: 15px; /* Reduced padding for mobile */
-        padding-top: 70px; /* Space for fixed top-app-bar, adjust if not fixed or different height */
-        padding-bottom: 80px; /* Space for fixed bottom-nav, adjust if different height */
+        padding: 15px; /* 移动端通用内边距 */
+        /* 如果 top-app-bar 是 fixed, 且高度约50-60px */
+        /* padding-top: 70px; */
+        padding-bottom: 70px; /* 为底部导航栏(约60px高)留出空间 + 一些间距 */
         border-radius: 0;
         box-shadow: none;
-        height: calc(100vh - 60px - 60px); /* Adjust based on top/bottom bar actual heights if they are fixed */
-        overflow-y: auto; /* Ensure content area is scrollable */
+        height: auto; /* 高度自适应，但要考虑视口高度和固定导航 */
+        /* 如果顶部和底部导航都固定，可能需要 calc(100vh - topBarHeight - bottomBarHeight) */
     }
 
     h1 {
-        font-size: 1.5em; /* Adjust heading sizes for mobile */
+        font-size: 1.6em;
+        margin-bottom: 20px;
+        padding-bottom: 8px;
     }
 
     h2 {
-        font-size: 1.25em;
+        font-size: 1.3em;
+        margin-top: 20px;
+        margin-bottom: 10px;
     }
 
     .speedometer-embed-container {
-        width: 100%;
-        height: 300px; /* Adjust iframe height for mobile */
+        height: 300px; /* 移动端 iframe 高度 */
         margin-bottom: 15px;
-        overflow: hidden;
     }
-    .speedometer-embed-container iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
+
+    .manual-input-warning {
+        padding: 12px;
+        font-size: 0.9em;
     }
 
     .form-section {
-        padding: 15px; /* Reduced padding */
+        padding: 20px 15px; /* 移动端表单区域内边距 */
     }
 
     input[type="number"],
     input[type="text"] {
-        padding: 12px; /* Slightly larger touch target */
+        padding: 12px; /* 增大点击区域 */
+        font-size: 1em;
     }
 
     button[type="submit"] {
-        padding: 15px; /* Larger touch target */
+        width: 100%; /* 移动端按钮宽度撑满 */
+        padding: 15px;
         font-size: 1.1em;
     }
 
     .results-container {
-        padding: 0; /* Remove container padding if cards have their own */
+        padding: 15px; /* 移动端结果容器内边距 */
     }
 
     #results-list li {
-        padding: 12px; /* Adjust card padding */
+        padding: 12px; /* 移动端卡片内边距 */
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
-
-
-    /* Bottom Navigation Bar */
-    .bottom-nav {
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: #ffffff;
-        border-top: 1px solid #e0e0e0;
-        box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
-        z-index: 1000;
-    }
-
-    .bottom-nav .nav-item {
-        flex: 1;
-        padding: 12px 5px; /* Adjust padding */
-        text-align: center;
-        cursor: pointer;
-        color: #7f8c8d; /* Default color */
-        font-size: 0.85em; /* Adjust font size */
-        display: flex;
-        flex-direction: column; /* Stack icon and text if you use icons */
-        align-items: center;
-        justify-content: center;
-        transition: color 0.2s ease;
-    }
-    /* If using icons: */
-    /* .bottom-nav .nav-item i {
-        font-size: 1.6em;
-        margin-bottom: 4px;
-    } */
-
-    .bottom-nav .nav-item.active {
-        color: #3498db; /* Active color - choose your brand's active color e.g. #4CAF50 */
-        /* border-top: 3px solid #3498db; Or use a border for indication */
-        /* background-color: #f0f0f0; Or a slight background change */
-    }
-    .bottom-nav .nav-item.active span {
-        font-weight: bold;
+    #results-list li strong {
+        font-size: 1.15em; /* 在移动端更突出分数 */
     }
 }
 
-/* Further adjustments for very small screens if needed */
+/* 针对非常小的屏幕的额外微调 (可选) */
 @media (max-width: 360px) {
     .main-content {
         padding: 10px;
-        padding-top: 65px; /* Adjust if top-app-bar height changes */
-        padding-bottom: 75px; /* Adjust if bottom-nav height changes */
+        /* padding-top: 65px; */ /* 对应调整（如果顶部栏固定） */
+        padding-bottom: 65px; /* 对应调整 */
     }
     h1 {
-        font-size: 1.3em;
+        font-size: 1.4em;
     }
     h2 {
-        font-size: 1.1em;
+        font-size: 1.2em;
     }
     .bottom-nav .nav-item {
-        font-size: 0.8em;
+        font-size: 0.8em; /* 底部导航文字再小一点 */
     }
     /* .bottom-nav .nav-item i {
-        font-size: 1.5em;
+        font-size: 1.4em;
     } */
+    .manual-input-warning {
+        font-size: 0.85em;
+    }
 }
