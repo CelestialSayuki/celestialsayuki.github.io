@@ -399,9 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 inverse: true,
                 axisLabel: {
                     interval: 0,
-                    formatter: function (value) {
-                        return value.length > 25 ? value.substring(0, 25) + '...' : value;
-                    }
                 }
             },
             series: [{
