@@ -164,8 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
             benchmarkType: benchmarkTypeSelectForm.value,
             browserVersion: formData.get('browserVersion'),
             cpuInfo: formData.get('cpuInfo'),
-            // Supabase 数据库中的 timestamp 列默认值设置为 now()，
-            // 所以这里不需要手动设置 timestamp，它会在插入时自动生成。
         };
 
         // 新增：检查所有必填字段，尤其是自动填充可能不足的 cpuInfo
@@ -188,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('结果上传成功！', 'success');
             uploadForm.reset();
             autofillBrowserInfo();
-            handleBenchmarkTypeForAppleMobileDevices();
+            lockBenchmarkTypeForSafari();
             if (document.getElementById('results-section').classList.contains('active')) {
                 loadUploadedResults();
             }
