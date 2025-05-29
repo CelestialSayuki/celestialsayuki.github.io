@@ -53,24 +53,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function lockBenchmarkTypeForSafari() {
-            const userAgent = navigator.userAgent;
-            const isPureSafari = userAgent.includes('Safari') &&
-                                 !userAgent.includes('Chrome') &&
-                                 !userAgent.includes('Edg') &&
-                                 !userAgent.includes('OPR') &&
-                                 !userAgent.includes('Opera');
+        const userAgent = navigator.userAgent;
+        const isPureSafari = userAgent.includes('Safari') &&
+                            !userAgent.includes('Chrome') &&
+                            !userAgent.includes('Edg') &&
+                            !userAgent.includes('OPR') &&
+                            !userAgent.includes('Opera');
 
-            if (isPureSafari) {
-                if (benchmarkTypeSelectForm) {
-                    benchmarkTypeSelectForm.value = 'Peak';
-                    benchmarkTypeSelectForm.disabled = true;
-                }
-            } else {
-                if (benchmarkTypeSelectForm && benchmarkTypeSelectForm.disabled) {
-                    benchmarkTypeSelectForm.disabled = false;
-                }
+        if (isPureSafari) {
+            if (benchmarkTypeSelectForm) {
+                benchmarkTypeSelectForm.value = 'Peak';
+                benchmarkTypeSelectForm.disabled = true;
+            }
+        } else {
+            if (benchmarkTypeSelectForm && benchmarkTypeSelectForm.disabled) {
+                benchmarkTypeSelectForm.disabled = false;
             }
         }
+    }
+    lockBenchmarkTypeForSafari();
 
     function autofillBrowserInfo() {
         if (!browserVersionInput) return;
