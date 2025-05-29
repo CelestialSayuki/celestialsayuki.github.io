@@ -52,26 +52,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function isIOSorIPadOS() {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-            return true;
-        }
-        if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) {
-            return true;
-        }
-        return false;
-    }
+    function lockBenchmarkTypeForSafari() {
+            const userAgent = navigator.userAgent;
+            const isPureSafari = userAgent.includes('Safari') &&
+                                 !userAgent.includes('Chrome') &&
+                                 !userAgent.includes('Edg') &&
+                                 !userAgent.includes('OPR') &&
+                                 !userAgent.includes('Opera');
 
-    function handleBenchmarkTypeForAppleMobileDevices() {
-        if (isIOSorIPadOS()) {
-            if (benchmarkTypeSelectForm) {
-                benchmarkTypeSelectForm.value = 'Peak';
-                benchmarkTypeSelectForm.disabled = true;
+            if (isPureSafari) {
+                if (benchmarkTypeSelectForm) {
+                    benchmarkTypeSelectForm.value = 'Peak';
+                    benchmarkTypeSelectForm.disabled = true;
+                }
+            } else {
+                if (benchmarkTypeSelectForm && benchmarkTypeSelectForm.disabled) {
+                    benchmarkTypeSelectForm.disabled = false;
+                }
             }
         }
-    }
-    handleBenchmarkTypeForAppleMobileDevices();
 
     function autofillBrowserInfo() {
         if (!browserVersionInput) return;
