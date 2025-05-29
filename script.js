@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ****** Firebase 配置 ******
     const firebaseConfig = {
-        apiKey: "AIzaSyAdRlF2QHuVPBI86khxM-4YT06VSY0-s_0",
+        apiKey: "AIzaSyAdRlF2QHuVPBI86khxM-4YT06VSY0-s_0", // 替换为您的真实配置
         authDomain: "speedometerdatauploader.firebaseapp.com",
         projectId: "speedometerdatauploader",
         storageBucket: "speedometerdatauploader.firebasestorage.app",
@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const db = firebase.firestore();
     // ****** ****************** ******
 
+    // DOM 元素获取
     const sidebarMenuItems = document.querySelectorAll('.sidebar .menu-item');
     const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item');
     const contentSections = document.querySelectorAll('.content-section');
@@ -22,16 +23,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingMessage = document.getElementById('loading-message');
     const browserVersionInput = document.getElementById('browserVersion');
     const submitBenchmarkButton = document.getElementById('submitBenchmarkButton');
+    const benchmarkTypeSelectForm = document.getElementById('benchmarkType'); // 上传表单中的类型选择
 
     // 筛选器元素
+    const filterBenchmarkTypeSelect = document.getElementById('filterBenchmarkType');
     const filterBrowserVersionSelect = document.getElementById('filterBrowserVersion');
     const filterCpuInfoSelect = document.getElementById('filterCpuInfo');
     const resetFiltersButton = document.getElementById('resetFiltersButton');
 
     let benchmarkChart = null;
-    let allBenchmarkData = []; // 用于存储从 Firebase 获取的原始数据
+    let allBenchmarkData = [];
 
-    function autofillBrowserInfo() { /* ... (此函数保持不变) ... */
+    // ****** 新增：检测iOS/iPadOS设备 ******
+    function isIOSorIPadOS() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        // iPadOS 13+ user agent may not contain "iPad" but will look like a Mac.
+        // A more robust check might involve checking for touch capabilities + Mac platform
+        if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+            return true;
+        }
+        // For iPadOS 13+ that pretends to be a Mac
+        if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) {
+            return true;
+        }
+        return false;
+    }
+
+    // ****** 新增：处理iOS/iPadOS设备上的跑分类型选择 ******
+    function handleBenchmarkTypeForAppleMobileDevices() {
+        if (isIOSorIPadOS()) {
+            if (benchmarkTypeSelectForm) {
+                benchmarkTypeSelectForm.value = 'Peak'; // 自动选择 Peak
+                benchmarkTypeSelectForm.disabled = true;  // 禁用选择框
+            }
+        }
+    }
+    // 调用此函数以应用逻辑
+    handleBenchmarkTypeForAppleMobileDevices();
+
+
+    function autofillBrowserInfo() { /* ... (保持不变) ... */
         if (!browserVersionInput) return;
         let userAgent = navigator.userAgent;
         let browserName = '未知浏览器';
@@ -69,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     autofillBrowserInfo();
 
-    function activateTab(targetId) { /* ... (此函数保持不变，但内部调用 loadUploadedResults 时会触发新逻辑) ... */
+    function activateTab(targetId) { /* ... (保持不变) ... */
         contentSections.forEach(section => section.classList.remove('active'));
         const targetSection = document.getElementById(targetId);
         if (targetSection) {
@@ -83,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (item.dataset.target === targetId) item.classList.add('active');
             });
             if (targetId === 'results-section') {
-                loadUploadedResults(); // 这个函数现在会加载数据并填充筛选器
+                loadUploadedResults();
             }
         }
     }
@@ -94,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const initiallyActiveSection = document.querySelector('.content-section.active');
     if (initiallyActiveSection) activateTab(initiallyActiveSection.id);
 
-    uploadForm.addEventListener('submit', async (event) => { /* ... (此函数保持不变) ... */
+    uploadForm.addEventListener('submit', async (event) => { /* ... (保持不变，benchmarkType 会正确获取到，即使是禁用的select) ... */
         event.preventDefault();
         if (submitBenchmarkButton) submitBenchmarkButton.disabled = true;
 
@@ -102,13 +133,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = {
             speedometerScore: parseFloat(formData.get('speedometerScore')) || 0,
             speedometerError: formData.get('speedometerError'),
+            benchmarkType: benchmarkTypeSelectForm.value, // 直接从select元素取值，即使它被禁用
             browserVersion: formData.get('browserVersion'),
             cpuInfo: formData.get('cpuInfo'),
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        if (!data.speedometerScore || !data.speedometerError || !data.browserVersion || !data.cpuInfo) {
-            showMessage('请填写所有必填字段。', 'error');
+        if (!data.speedometerScore || !data.speedometerError || !data.benchmarkType || !data.browserVersion || !data.cpuInfo) {
+            showMessage('请填写所有必填字段，包括跑分类型。', 'error');
             if (submitBenchmarkButton) submitBenchmarkButton.disabled = false;
             return;
         }
@@ -118,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('结果上传成功！', 'success');
             uploadForm.reset();
             autofillBrowserInfo();
-            // 如果上传成功后希望立即刷新结果列表和图表 (如果当前在结果页)
+            handleBenchmarkTypeForAppleMobileDevices(); // 重置表单后再次应用 iOS/iPadOS 逻辑
             if (document.getElementById('results-section').classList.contains('active')) {
                 loadUploadedResults();
             }
@@ -130,17 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 动态填充筛选器选项
-    function populateFilterOptions(data) {
-        if (!filterBrowserVersionSelect || !filterCpuInfoSelect) return;
+    function populateFilterOptions(data) { /* ... (保持不变) ... */
+        if (!filterBenchmarkTypeSelect || !filterBrowserVersionSelect || !filterCpuInfoSelect) return;
 
+        const uniqueBenchmarkTypes = [...new Set(data.map(item => item.benchmarkType).filter(Boolean))].sort();
         const uniqueBrowserVersions = [...new Set(data.map(item => item.browserVersion).filter(Boolean))].sort();
         const uniqueCpuInfos = [...new Set(data.map(item => item.cpuInfo).filter(Boolean))].sort();
 
-        // 清空现有选项 (保留 "所有...")
-        filterBrowserVersionSelect.innerHTML = '<option value="">所有版本</option>';
-        filterCpuInfoSelect.innerHTML = '<option value="">所有CPU</option>';
+        filterBenchmarkTypeSelect.innerHTML = '<option value="">所有类型</option>';
+        uniqueBenchmarkTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            filterBenchmarkTypeSelect.appendChild(option);
+        });
 
+        filterBrowserVersionSelect.innerHTML = '<option value="">所有版本</option>';
         uniqueBrowserVersions.forEach(version => {
             const option = document.createElement('option');
             option.value = version;
@@ -148,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             filterBrowserVersionSelect.appendChild(option);
         });
 
+        filterCpuInfoSelect.innerHTML = '<option value="">所有CPU</option>';
         uniqueCpuInfos.forEach(cpu => {
             const option = document.createElement('option');
             option.value = cpu;
@@ -156,15 +194,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // 应用筛选并重新渲染图表和列表
-    function applyFiltersAndRender() {
-        if (!allBenchmarkData.length) return; // 如果没有原始数据，则不执行
+    function applyFiltersAndRender() { /* ... (保持不变) ... */
+        if (!allBenchmarkData.length && benchmarkChart) {
+            benchmarkChart.dispose();
+            benchmarkChart = null;
+            const chartContainer = document.getElementById('benchmarkChartContainer');
+            if(chartContainer) chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>';
+            renderResultsList([]);
+            return;
+        }
+        if (!allBenchmarkData.length) {
+             renderResultsList([]);
+             const chartContainer = document.getElementById('benchmarkChartContainer');
+             if(chartContainer) chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>';
+            return;
+        }
 
+        const selectedBenchmarkType = filterBenchmarkTypeSelect.value;
         const selectedBrowserVersion = filterBrowserVersionSelect.value;
         const selectedCpuInfo = filterCpuInfoSelect.value;
 
         let filteredData = allBenchmarkData;
 
+        if (selectedBenchmarkType) {
+            filteredData = filteredData.filter(item => item.benchmarkType === selectedBenchmarkType);
+        }
         if (selectedBrowserVersion) {
             filteredData = filteredData.filter(item => item.browserVersion === selectedBrowserVersion);
         }
@@ -172,20 +226,16 @@ document.addEventListener('DOMContentLoaded', () => {
             filteredData = filteredData.filter(item => item.cpuInfo === selectedCpuInfo);
         }
         
-        // 渲染列表 (显示所有符合筛选条件的数据)
         renderResultsList(filteredData);
 
-        // 为图表准备数据：按 CPU 型号分组，取每个 CPU 的最高分
-        // 如果指定了 CPU 筛选，图表将只显示该 CPU 的最高分
-        // 如果没有指定 CPU 筛选，图表将显示所有（符合浏览器筛选的）CPU 的各自最高分
         const chartDataProcessed = {};
         filteredData.forEach(item => {
-            const key = item.cpuInfo; // 使用 CPU Info 作为设备标识
+            const key = item.cpuInfo;
             if (!chartDataProcessed[key] || item.speedometerScore > chartDataProcessed[key].score) {
                 chartDataProcessed[key] = {
                     device: key,
                     score: item.speedometerScore,
-                    // 保留其他信息用于 tooltip
+                    benchmarkType: item.benchmarkType,
                     browserVersion: item.browserVersion,
                     speedometerError: item.speedometerError,
                     timestamp: item.timestamp
@@ -193,15 +243,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // 将处理后的对象转换为数组给 ECharts
-        const chartDataForEcharts = Object.values(chartDataProcessed).sort((a,b) => b.score - a.score); // 按分数降序排列
+        const chartDataForEcharts = Object.values(chartDataProcessed).sort((a,b) => b.score - a.score);
 
         renderBenchmarkChart(chartDataForEcharts);
     }
 
-    // 渲染详细数据列表
-    function renderResultsList(dataToRender) {
-        resultsList.innerHTML = ''; // 清空现有列表
+    function renderResultsList(dataToRender) { /* ... (保持不变) ... */
+        resultsList.innerHTML = '';
         if (dataToRender.length === 0) {
             resultsList.innerHTML = '<li><p>没有符合筛选条件的结果。</p></li>';
             return;
@@ -211,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const uploadTime = result.timestamp ? result.timestamp.toDate().toLocaleString() : 'N/A';
             listItem.innerHTML = `
                 <strong>分数:</strong> ${result.speedometerScore || 'N/A'} (误差: ${result.speedometerError || 'N/A'})<br>
+                <strong>类型:</strong> ${result.benchmarkType || 'N/A'}<br>
                 <strong>浏览器:</strong> ${result.browserVersion || 'N/A'}<br>
                 <strong>CPU:</strong> ${result.cpuInfo || 'N/A'}<br>
                 <p class="upload-time">上传时间: ${uploadTime}</p>
@@ -219,15 +268,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
-    async function loadUploadedResults() {
+    async function loadUploadedResults() { /* ... (保持不变) ... */
         if (!resultsList || !loadingMessage) return;
         
         const chartContainer = document.getElementById('benchmarkChartContainer');
         loadingMessage.style.display = 'block';
         resultsList.style.display = 'none';
         if (chartContainer) chartContainer.style.display = 'none';
-        // 重置筛选器选项，但保留当前选中的值（如果存在）
+        
+        const currentBenchmarkTypeFilter = filterBenchmarkTypeSelect.value;
         const currentBrowserFilter = filterBrowserVersionSelect.value;
         const currentCpuFilter = filterCpuInfoSelect.value;
 
@@ -236,19 +285,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 .orderBy('timestamp', 'desc')
                 .get();
             
-            allBenchmarkData = []; // 清空旧的全局数据
+            allBenchmarkData = [];
             if (!snapshot.empty) {
                 snapshot.forEach(doc => {
                     allBenchmarkData.push(doc.data());
                 });
             }
             
-            populateFilterOptions(allBenchmarkData); // 用新数据填充筛选器选项
-            // 恢复之前的筛选状态
+            populateFilterOptions(allBenchmarkData);
+            
+            if (filterBenchmarkTypeSelect.querySelector(`option[value="${currentBenchmarkTypeFilter}"]`)) {
+                 filterBenchmarkTypeSelect.value = currentBenchmarkTypeFilter;
+            } else {
+                 filterBenchmarkTypeSelect.value = "";
+            }
             if (filterBrowserVersionSelect.querySelector(`option[value="${currentBrowserFilter}"]`)) {
                  filterBrowserVersionSelect.value = currentBrowserFilter;
             } else {
-                 filterBrowserVersionSelect.value = ""; // 如果旧选项不存在了，则重置
+                 filterBrowserVersionSelect.value = "";
             }
             if (filterCpuInfoSelect.querySelector(`option[value="${currentCpuFilter}"]`)) {
                 filterCpuInfoSelect.value = currentCpuFilter;
@@ -256,8 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterCpuInfoSelect.value = "";
             }
 
-
-            applyFiltersAndRender(); // 根据筛选（或无筛选）渲染图表和列表
+            applyFiltersAndRender();
 
             loadingMessage.style.display = 'none';
             resultsList.style.display = '';
@@ -270,12 +323,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (chartContainer) chartContainer.style.display = 'block';
             resultsList.innerHTML = `<li><p class="error-message">加载结果失败: ${error.message || '未知错误'}</p></li>`;
             if (chartContainer) chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px; color: red;">图表数据加载失败。</p>';
-            allBenchmarkData = []; // 出错时清空数据
-            populateFilterOptions([]); // 清空筛选器
+            allBenchmarkData = [];
+            populateFilterOptions([]);
         }
     }
 
-    function renderBenchmarkChart(dataForChart) { // dataForChart 是 [{device: 'CPU_A', score: MAX_SCORE_A}, ...]
+    function renderBenchmarkChart(dataForChart) { /* ... (保持不变，但 setOption(..., true)很重要) ... */
         const chartContainer = document.getElementById('benchmarkChartContainer');
         if (!echarts || !chartContainer) {
             console.error('ECharts 未加载或图表容器未找到');
@@ -290,9 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (dataForChart.length === 0) {
             chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
-            // 如果希望在没有数据时也显示一个空的ECharts图表框架，可以清除innerHTML并继续setOption一个空系列
-            // benchmarkChart.clear(); // 清除旧内容
-            // benchmarkChart.setOption({ /* ... 空图表的配置 ... */ });
             return;
         }
         
@@ -303,14 +353,15 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             tooltip: {
                 trigger: 'axis',
-                axisPointer: { type: 'shadow' }, // 柱状图用 shadow
+                axisPointer: { type: 'shadow' },
                 formatter: function (params) {
-                    const item = params[0]; // 条形图只有一个系列
-                    const originalDataItem = dataForChart.find(d => d.device === item.name && d.score === item.value); // 从传入的数据中找到对应项
+                    const item = params[0];
+                    const originalDataItem = dataForChart.find(d => d.device === item.name && d.score === item.value);
                     if (originalDataItem) {
                          return `
-                            <strong>设备: ${item.name}</strong><br/>
+                            <strong>设备 (CPU): ${item.name}</strong><br/>
                             最高分数: ${item.value}<br/>
+                            跑分类型: ${originalDataItem.benchmarkType || 'N/A'}<br/>
                             浏览器: ${originalDataItem.browserVersion || 'N/A'}<br/>
                             误差: ${originalDataItem.speedometerError || 'N/A'}<br/>
                             记录时间: ${originalDataItem.timestamp ? originalDataItem.timestamp.toDate().toLocaleString() : 'N/A'}
@@ -319,61 +370,39 @@ document.addEventListener('DOMContentLoaded', () => {
                     return `${item.name}<br/>分数: ${item.value}`;
                 }
             },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
             xAxis: {
                 type: 'category',
-                data: dataForChart.map(item => item.device), // X轴：设备 (CPU Info)
-                axisLabel: {
-                    interval: 0, //确保所有标签都显示
-                    rotate: 30, // 如果标签太长，可以旋转
-                    formatter: function (value) { // 标签过长时截断
-                        return value.length > 15 ? value.substring(0, 15) + '...' : value;
-                    }
-                }
+                data: dataForChart.map(item => item.device),
+                axisLabel: { interval: 0, rotate: 30, formatter: function (value) { return value.length > 15 ? value.substring(0, 15) + '...' : value; } }
             },
-            yAxis: {
-                type: 'value',
-                name: '最高分数'
-            },
+            yAxis: { type: 'value', name: '最高分数' },
             dataZoom: [
-                { type: 'slider', start: 0, end: dataForChart.length > 10 ? (10 / dataForChart.length * 100) : 100 }, // 如果数据多，默认显示一部分
+                { type: 'slider', start: 0, end: dataForChart.length > 10 ? (10 / dataForChart.length * 100) : 100 },
                 { type: 'inside', start: 0, end: 100 }
             ],
-            series: [
-                {
-                    name: '最高分数',
-                    type: 'bar', // 修改为条形图
-                    barMaxWidth: '60%', // 设置柱子最大宽度
-                    data: dataForChart.map(item => item.score), // Y轴：分数
-                    itemStyle: {
-                        borderRadius: [5, 5, 0, 0] // 柱子顶部圆角
-                    },
-                    label: { // 在柱子顶部显示数值
-                        show: true,
-                        position: 'top',
-                        formatter: '{c}' // {c} 代表数据值
-                    }
-                }
-            ]
+            series: [{
+                name: '最高分数',
+                type: 'bar',
+                barMaxWidth: '60%',
+                data: dataForChart.map(item => item.score),
+                itemStyle: { borderRadius: [5, 5, 0, 0] },
+                label: { show: true, position: 'top', formatter: '{c}' }
+            }]
         };
-        benchmarkChart.setOption(chartOption);
+        benchmarkChart.setOption(chartOption, true);
 
-        window.removeEventListener('resize', resizeChart); // 先移除旧的监听器，防止重复添加
+        window.removeEventListener('resize', resizeChart);
         window.addEventListener('resize', resizeChart);
     }
     
-    function resizeChart() {
+    function resizeChart() { /* ... (保持不变) ... */
         if (benchmarkChart) {
             benchmarkChart.resize();
         }
     }
 
-    function showMessage(msg, type) { /* ... (此函数保持不变) ... */
+    function showMessage(msg, type) { /* ... (保持不变) ... */
         if (!messageDiv) return;
         messageDiv.textContent = msg;
         messageDiv.className = '';
@@ -391,15 +420,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 事件监听器绑定
+    filterBenchmarkTypeSelect.addEventListener('change', applyFiltersAndRender);
     filterBrowserVersionSelect.addEventListener('change', applyFiltersAndRender);
     filterCpuInfoSelect.addEventListener('change', applyFiltersAndRender);
     resetFiltersButton.addEventListener('click', () => {
+        filterBenchmarkTypeSelect.value = '';
         filterBrowserVersionSelect.value = '';
         filterCpuInfoSelect.value = '';
         applyFiltersAndRender();
     });
 
-    // 确保首次加载时，如果结果页是激活状态，则加载数据和图表
     if (document.getElementById('results-section')?.classList.contains('active')) {
         loadUploadedResults();
     }

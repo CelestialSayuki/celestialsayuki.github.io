@@ -7,6 +7,7 @@ body {
     margin: 0;
     display: flex; /* 桌面端布局：侧边栏 + 主内容 */
     min-height: 100vh;
+    color: #333; /* 设定一个基础文字颜色 */
 }
 
 a {
@@ -28,19 +29,19 @@ a:hover {
 .sidebar {
     width: 250px;
     background-color: #2c3e50;
-    color: white;
+    color: #ecf0f1; /* 侧边栏文字颜色 */
     padding: 20px 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    display: flex; /* 默认在桌面端显示 */
+    display: flex;
     flex-direction: column;
 }
 
 .sidebar .logo {
-    font-size: 1.8em; /* 根据 index.html <style> 统一 */
+    font-size: 1.8em;
     font-weight: bold;
     text-align: center;
     margin-bottom: 30px;
-    color: #3498db; /* 根据 index.html <style> 统一 */
+    color: #3498db;
 }
 
 .sidebar .menu {
@@ -50,11 +51,12 @@ a:hover {
 }
 
 .sidebar .menu-item {
-    padding: 15px 20px; /* 根据 index.html <style> 统一 */
+    padding: 15px 20px;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     border-left: 5px solid transparent;
     font-size: 1.1em;
+    color: #ecf0f1; /* 菜单项文字颜色 */
 }
 
 .sidebar .menu-item:hover {
@@ -63,9 +65,9 @@ a:hover {
 }
 
 .sidebar .menu-item.active {
-    background-color: #3498db; /* 根据 index.html <style> 统一 */
-    border-left-color: #2980b9; /* 根据 index.html <style> 统一 */
-    color: #ffffff; /* 根据 index.html <style> 统一 */
+    background-color: #3498db;
+    border-left-color: #2980b9;
+    color: #ffffff;
     font-weight: bold;
 }
 
@@ -83,13 +85,12 @@ a:hover {
     box-sizing: border-box;
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    /* position: fixed; top: 0; left: 0; /* 如果需要在移动端固定 */
 }
 
 .top-app-bar .logo-mobile {
     font-size: 1.5em;
     font-weight: bold;
-    color: #3498db; /* 与桌面端 logo 颜色一致 */
+    color: #3498db;
     margin: 0;
 }
 
@@ -123,7 +124,7 @@ a:hover {
 }
 
 .bottom-nav .nav-item.active {
-    color: #3498db; /* 与激活的菜单项颜色一致 */
+    color: #3498db;
 }
 .bottom-nav .nav-item.active span {
     font-weight: bold;
@@ -134,10 +135,10 @@ a:hover {
    ========================================================================== */
 .main-content {
     flex-grow: 1;
-    padding: 30px; /* 根据 index.html <style> 统一 */
+    padding: 30px;
     background-color: #ffffff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* 根据 index.html <style> 统一 */
-    margin: 20px; /* 桌面端外边距 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    margin: 20px;
     border-radius: 8px;
     overflow-y: auto;
 }
@@ -158,20 +159,20 @@ a:hover {
    ========================================================================== */
 h1 {
     color: #2c3e50;
-    text-align: left; /* 通常页面主标题左对齐更常见 */
+    text-align: left;
     border-bottom: 2px solid #3498db;
     padding-bottom: 10px;
-    margin-top: 0; /* 内容区域的第一个H1通常不需要上外边距 */
+    margin-top: 0;
     margin-bottom: 25px;
-    font-size: 1.8em; /* 调整H1大小 */
+    font-size: 1.8em;
 }
 
 h2 {
     color: #34495e;
-    text-align: left; /* 子标题也左对齐 */
+    text-align: left;
     margin-top: 30px;
     margin-bottom: 15px;
-    font-size: 1.4em; /* 调整H2大小 */
+    font-size: 1.4em;
 }
 
 ol {
@@ -197,7 +198,7 @@ label {
     border: 1px solid #ddd;
     margin-bottom: 20px;
     width: 100%;
-    height: 650px; /* 桌面端默认高度 */
+    height: 650px;
     overflow: hidden;
 }
 
@@ -231,58 +232,76 @@ label {
 }
 
 /* ==========================================================================
-   表单区域样式 (.form-section, .form-group, input, button)
+   表单区域样式 (.form-section, .form-group, input, select, button)
    ========================================================================== */
 .form-section {
     background-color: #fdfdfd;
     padding: 25px;
     border-radius: 8px;
     border: 1px solid #eee;
-    margin-top: 20px; /* 统一与上一元素的间距 */
+    margin-top: 20px;
 }
 
 .form-group {
     margin-bottom: 18px;
 }
 
-input[type="number"], /* 虽然目前没有number类型，但可以保留 */
-input[type="text"] {
+input[type="number"],
+input[type="text"],
+select { /* 将select也加入通用样式 */
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
     font-size: 1em;
+    background-color: #fff; /* 确保select背景色 */
+    color: #333; /* 确保select文字颜色 */
+}
+/* 为被禁用的select提供样式 */
+select:disabled {
+    background-color: #e9ecef; /* 浅灰色背景 */
+    color: #6c757d; /* 较暗的文字颜色 */
+    cursor: not-allowed;
 }
 
-button[type="submit"],
-.filters-container button { /* 统一按钮样式 */
-    background-color: #28a745; /* 主操作按钮颜色 */
+
+/* 跑分类型描述文字样式 */
+.benchmark-type-description {
+    display: block;
+    font-size: 0.85em;
+    color: #555;
+    margin-top: 8px;
+    line-height: 1.5;
+}
+.benchmark-type-description strong {
+    color: #333;
+}
+
+button[type="submit"] { /* 仅针对type="submit"的按钮，以区别于筛选器中的普通button */
+    background-color: #28a745;
     color: white;
-    padding: 10px 20px; /* 调整padding */
+    padding: 10px 20px;
     border: none;
     border-radius: 5px;
-    font-size: 1em; /* 调整字体大小 */
+    font-size: 1em;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-top: 10px; /* 提交按钮的上边距 */
+    margin-top: 10px;
 }
 
-button[type="submit"]:hover,
-.filters-container button:hover {
+button[type="submit"]:hover {
     background-color: #218838;
 }
 
-/* 按钮禁用状态 */
 button:disabled {
     background-color: #cccccc;
     color: #666666;
     cursor: not-allowed;
 }
 button:disabled:hover {
-    background-color: #cccccc; /* 禁用时悬停不变色 */
+    background-color: #cccccc;
 }
-
 
 /* ==========================================================================
    消息提示区域 (#message)
@@ -322,41 +341,39 @@ button:disabled:hover {
     background-color: #f9f9f9;
     padding: 15px;
     border-radius: 8px;
-    margin-bottom: 30px; /* 与下方图表容器的间距 */
+    margin-bottom: 30px;
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 15px 20px; /* 行间距15px, 列间距20px */
     align-items: flex-end;
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* 让筛选组在空间足够时扩展 */
-    min-width: 200px;
+    flex-grow: 1;
+    min-width: 180px; /* 调整以适应更多筛选器 */
 }
 
 .filter-group label {
     margin-bottom: 5px;
     font-size: 0.9em;
     color: #555;
-    font-weight: normal; /* 筛选器标签不用加粗 */
+    font-weight: normal;
 }
 
-.filters-container select {
-    padding: 8px 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 1em;
-    width: 100%; /* 在 flex-group 内部占满 */
-    box-sizing: border-box;
-}
+/* .filters-container select 已经由全局 select 样式覆盖 */
 
-.filters-container button#resetFiltersButton { /* 特定于重置按钮的颜色 */
-    background-color: #6c757d; /* 灰色系 */
+.filters-container button#resetFiltersButton {
+    background-color: #6c757d;
+    color: white;
     padding: 9px 15px; /* 与 select 高度接近 */
     font-size: 0.95em;
-    margin-top: 0; /* 因为底部对齐，不需要这个 */
+    margin-top: 0; /* 由于 flex-end 对齐，不需要这个 */
+    border: none; /* 确保无边框 */
+    border-radius: 5px; /* 确保圆角 */
+    cursor: pointer; /* 确保鼠标指针 */
+    transition: background-color 0.3s ease; /* 确保过渡效果 */
 }
 
 .filters-container button#resetFiltersButton:hover {
@@ -368,22 +385,22 @@ button:disabled:hover {
    ========================================================================== */
 #benchmarkChartContainer {
     width: 100%;
-    height: 400px; /* HTML中已定义，此处可省略或覆盖 */
-    margin-bottom: 30px; /* HTML中已定义 */
+    /* height: 400px; 在HTML中设置 */
+    /* margin-bottom: 30px; 在HTML中设置 */
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    padding: 20px; /* 增加内边距 */
+    padding: 20px;
     box-sizing: border-box;
 }
 
 /* ==========================================================================
    结果列表区域 (.results-container, #loading-message, #results-list)
    ========================================================================== */
-.results-container { /* 这个是列表的外层容器 */
-    margin-top: 0; /* 因为上面已经有了H2标题 */
+.results-container {
+    margin-top: 0; /* 因为上方已有H2 */
     background-color: #fdfdfd;
-    padding: 20px; /* 内边距 */
+    padding: 20px;
     border-radius: 8px;
     border: 1px solid #eee;
 }
@@ -402,11 +419,11 @@ button:disabled:hover {
 }
 
 #results-list li {
-    background-color: #fff; /* 卡片背景色 */
-    border: 1px solid #e0e0e0; /* 卡片边框颜色 */
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
     padding: 15px;
     margin-bottom: 12px;
-    border-radius: 6px; /* 卡片圆角 */
+    border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 #results-list li:last-child {
@@ -414,21 +431,21 @@ button:disabled:hover {
 }
 
 #results-list li strong {
-    color: #3498db; /* 分数用主题色突出 */
-    display: inline; /* 让分数和误差在同一行 */
+    color: #3498db;
+    display: inline;
     margin-right: 5px;
     font-size: 1.05em;
 }
 
 #results-list li p {
     font-size: 0.9em;
-    color: #555; /* 辅助文字颜色 */
-    margin: 8px 0 0 0; /* 段落上边距，无下边距 */
+    color: #555;
+    margin: 8px 0 0 0;
     line-height: 1.5;
 }
 #results-list li p.upload-time {
     font-size: 0.8em;
-    color: #777; /* 时间文字颜色更浅 */
+    color: #777;
     margin-top: 10px;
 }
 
@@ -446,7 +463,6 @@ button:disabled:hover {
 
     .top-app-bar {
         display: flex;
-        /* position: fixed; top: 0; left: 0; */ /* 如果固定，需要调整 main-content padding-top */
     }
 
     .bottom-nav {
@@ -456,20 +472,19 @@ button:disabled:hover {
     .main-content {
         margin: 0;
         padding: 15px;
-        /* padding-top: 70px; */ /* 如果顶部栏固定且高度约55px，加15px间距 */
-        padding-bottom: 70px; /* 为底部导航栏(约50-60px高)留出空间 */
+        padding-bottom: 70px; /* 为底部导航栏留出空间 */
         border-radius: 0;
         box-shadow: none;
     }
 
     h1 {
-        font-size: 1.5em; /* 移动端H1 */
+        font-size: 1.5em;
         padding-bottom: 8px;
         margin-bottom: 20px;
     }
 
     h2 {
-        font-size: 1.25em; /* 移动端H2 */
+        font-size: 1.25em;
         margin-top: 25px;
         margin-bottom: 12px;
     }
@@ -483,49 +498,52 @@ button:disabled:hover {
         padding: 12px;
         font-size: 0.9em;
     }
+    .benchmark-type-description {
+        font-size: 0.8em;
+    }
 
     .form-section {
         padding: 20px 15px;
     }
 
     input[type="number"],
-    input[type="text"] {
+    input[type="text"],
+    select {
         padding: 12px;
         font-size: 1em;
     }
 
-    button[type="submit"] { /* 提交按钮在移动端撑满 */
+    button[type="submit"] {
         width: 100%;
-        padding: 14px; /* 增大点击区域 */
+        padding: 14px;
     }
 
     .filters-container {
         flex-direction: column;
         align-items: stretch;
         gap: 15px;
-        padding: 15px 10px; /* 移动端筛选器内边距 */
+        padding: 15px 10px;
         margin-bottom: 20px;
     }
     .filter-group,
-    .filters-container select,
-    .filters-container button#resetFiltersButton { /* 重置按钮也撑满 */
+    .filters-container select, /* 确保筛选器中的select也撑满 */
+    .filters-container button#resetFiltersButton {
         width: 100%;
-        min-width: 0;
-        margin-top: 0; /* 移除桌面端为对齐设置的 margin-top */
+        min-width: 0; /* 重置桌面端的min-width */
+        margin-top: 0;
     }
     .filters-container button#resetFiltersButton {
-        padding: 12px; /* 移动端按钮padding */
+        padding: 12px;
     }
 
-
     #benchmarkChartContainer {
-        height: 300px; /* 移动端图表高度 */
-        padding: 10px; /* 移动端图表内边距 */
+        height: 300px;
+        padding: 10px;
         margin-bottom: 20px;
     }
 
     .results-container {
-        padding: 15px 10px; /* 移动端结果列表容器内边距 */
+        padding: 15px 10px;
     }
 
     #results-list li {
@@ -539,8 +557,7 @@ button:disabled:hover {
 @media (max-width: 375px) {
     .main-content {
         padding: 10px;
-        /* padding-top: 65px; */
-        padding-bottom: 65px;
+        padding-bottom: 65px; /* 对应调整 */
     }
     h1 {
         font-size: 1.3em;
@@ -551,13 +568,15 @@ button:disabled:hover {
     .bottom-nav .nav-item {
         font-size: 0.8em;
     }
-    .manual-input-warning {
-        font-size: 0.85em;
+    .manual-input-warning,
+    .benchmark-type-description {
+        font-size: 0.8em; /* 调整使与0.85em有区分或统一 */
     }
     button[type="submit"],
     .filters-container button#resetFiltersButton {
-        font-size: 0.95em; /* 按钮字体稍小 */
+        font-size: 0.95em;
     }
+    select, /* 全局select在小屏幕上的字体 */
     .filters-container select {
         font-size: 0.95em;
     }
