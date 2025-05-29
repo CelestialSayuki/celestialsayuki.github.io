@@ -469,4 +469,5 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshResultsButton.addEventListener('click', () => {
             loadUploadedResults();
         });
+    }
 });
