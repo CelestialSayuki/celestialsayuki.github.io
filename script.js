@@ -80,9 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let browserVersion = '未知版本';
 
         // 检查 Edge
-        if (userAgent.includes('Edg')) {
+        if (userAgent.includes('Edg') || userAgent.includes('EdgA')) {
             browserName = 'Edge';
-            const edgeVersion = userAgent.match(/Edg\/(\d+\.\d+\.\d+\.\d+)/);
+            const edgeVersion = userAgent.match(/Edg(?:A)?\/(\d+\.\d+\.\d+\.\d+)/);
             if (edgeVersion && edgeVersion[1]) browserVersion = edgeVersion[1];
         // 检查 Opera
         } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) {
