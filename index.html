@@ -43,18 +43,11 @@
 
                     <div class="form-group">
                         <label for="benchmarkType">跑分类型:</label>
-                        <div class="custom-select-wrapper" id="customBenchmarkTypeWrapper">
-                            <input type="hidden" name="benchmarkType" id="benchmarkType" value="Base"> {/* 用于表单提交 */}
-                            <div class="custom-select-trigger" tabindex="0"> {/* tabindex使其可聚焦 */}
-                                <span class="custom-select-value">Base</span>
-                                <span class="custom-select-arrow"></span>
-                            </div>
-                            <div class="custom-select-options">
-                                <div class="custom-select-option" data-value="Base">Base</div>
-                                <div class="custom-select-option" data-value="Peak">Peak</div>
-                                <div class="custom-select-option" data-value="Webview">Webview</div>
-                            </div>
-                        </div>
+                        <select id="benchmarkType" name="benchmarkType" required>
+                            <option value="Base">Base</option>
+                            <option value="Peak">Peak</option>
+                            <option value="Webview">Webview</option>
+                        </select>
                         <small class="benchmark-type-description">
                             <strong>Base：</strong>系统自带浏览器的性能，代表大部分用户到手的实际水平。<br>
                             <strong>Peak：</strong>最新版Webview/Chrome的性能，代表处理器最高水平。<br>
