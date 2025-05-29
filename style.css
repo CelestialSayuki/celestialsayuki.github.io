@@ -1,13 +1,10 @@
-/* ==========================================================================
-   基础和全局样式
-   ========================================================================== */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
-    display: flex; /* 桌面端布局：侧边栏 + 主内容 */
+    display: flex;
     min-height: 100vh;
-    color: #333; /* 设定一个基础文字颜色 */
+    color: #333;
 }
 
 a {
@@ -23,13 +20,10 @@ a:hover {
     display: none !important;
 }
 
-/* ==========================================================================
-   桌面端侧边栏样式 (.sidebar)
-   ========================================================================== */
 .sidebar {
     width: 250px;
     background-color: #2c3e50;
-    color: #ecf0f1; /* 侧边栏文字颜色 */
+    color: #ecf0f1;
     padding: 20px 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -56,7 +50,7 @@ a:hover {
     transition: background-color 0.3s ease, color 0.3s ease;
     border-left: 5px solid transparent;
     font-size: 1.1em;
-    color: #ecf0f1; /* 菜单项文字颜色 */
+    color: #ecf0f1;
 }
 
 .sidebar .menu-item:hover {
@@ -71,11 +65,8 @@ a:hover {
     font-weight: bold;
 }
 
-/* ==========================================================================
-   移动端顶部应用栏 (.top-app-bar) - 默认隐藏
-   ========================================================================== */
 .top-app-bar {
-    display: none; /* 桌面端默认隐藏 */
+    display: none;
     align-items: center;
     justify-content: center;
     background-color: #2c3e50;
@@ -94,11 +85,8 @@ a:hover {
     margin: 0;
 }
 
-/* ==========================================================================
-   移动端底部导航栏 (.bottom-nav) - 默认隐藏
-   ========================================================================== */
 .bottom-nav {
-    display: none; /* 桌面端默认隐藏 */
+    display: none;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -130,9 +118,6 @@ a:hover {
     font-weight: bold;
 }
 
-/* ==========================================================================
-   主内容区域 (.main-content)
-   ========================================================================== */
 .main-content {
     flex-grow: 1;
     padding: 30px;
@@ -143,9 +128,6 @@ a:hover {
     overflow-y: auto;
 }
 
-/* ==========================================================================
-   内容区块切换 (.content-section)
-   ========================================================================== */
 .content-section {
     display: none;
 }
@@ -154,9 +136,6 @@ a:hover {
     display: block;
 }
 
-/* ==========================================================================
-   标题和文本样式 (h1, h2, p, ol, label)
-   ========================================================================== */
 h1 {
     color: #2c3e50;
     text-align: left;
@@ -191,9 +170,6 @@ label {
     color: #555;
 }
 
-/* ==========================================================================
-   Speedometer iframe 容器
-   ========================================================================== */
 .speedometer-embed-container {
     border: 1px solid #ddd;
     margin-bottom: 20px;
@@ -208,9 +184,6 @@ label {
     border: none;
 }
 
-/* ==========================================================================
-   手动输入警告 (.manual-input-warning)
-   ========================================================================== */
 .manual-input-warning {
     background-color: #fff3cd;
     border-left: 5px solid #ffc107;
@@ -231,9 +204,6 @@ label {
     font-weight: bold;
 }
 
-/* ==========================================================================
-   表单区域样式 (.form-section, .form-group, input, select, button)
-   ========================================================================== */
 .form-section {
     background-color: #fdfdfd;
     padding: 25px;
@@ -248,25 +218,22 @@ label {
 
 input[type="number"],
 input[type="text"],
-select { /* 将select也加入通用样式 */
+select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
     font-size: 1em;
-    background-color: #fff; /* 确保select背景色 */
-    color: #333; /* 确保select文字颜色 */
+    background-color: #fff;
+    color: #333;
 }
-/* 为被禁用的select提供样式 */
 select:disabled {
-    background-color: #e9ecef; /* 浅灰色背景 */
-    color: #6c757d; /* 较暗的文字颜色 */
+    background-color: #e9ecef;
+    color: #6c757d;
     cursor: not-allowed;
 }
 
-
-/* 跑分类型描述文字样式 */
 .benchmark-type-description {
     display: block;
     font-size: 0.85em;
@@ -278,7 +245,7 @@ select:disabled {
     color: #333;
 }
 
-button[type="submit"] { /* 仅针对type="submit"的按钮，以区别于筛选器中的普通button */
+button[type="submit"] {
     background-color: #28a745;
     color: white;
     padding: 10px 20px;
@@ -303,9 +270,6 @@ button:disabled:hover {
     background-color: #cccccc;
 }
 
-/* ==========================================================================
-   消息提示区域 (#message)
-   ========================================================================== */
 #message {
     margin-top: 20px;
     padding: 10px 15px;
@@ -334,9 +298,6 @@ button:disabled:hover {
     opacity: 1;
 }
 
-/* ==========================================================================
-   筛选器区域样式 (.filters-container)
-   ========================================================================== */
 .filters-container {
     background-color: #f9f9f9;
     padding: 15px;
@@ -344,7 +305,7 @@ button:disabled:hover {
     margin-bottom: 30px;
     display: flex;
     flex-wrap: wrap;
-    gap: 15px 20px; /* 行间距15px, 列间距20px */
+    gap: 15px 20px;
     align-items: flex-end;
 }
 
@@ -352,7 +313,7 @@ button:disabled:hover {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    min-width: 180px; /* 调整以适应更多筛选器 */
+    min-width: 180px;
 }
 
 .filter-group label {
@@ -362,31 +323,24 @@ button:disabled:hover {
     font-weight: normal;
 }
 
-/* .filters-container select 已经由全局 select 样式覆盖 */
-
 .filters-container button#resetFiltersButton {
     background-color: #6c757d;
     color: white;
-    padding: 9px 15px; /* 与 select 高度接近 */
+    padding: 9px 15px;
     font-size: 0.95em;
-    margin-top: 0; /* 由于 flex-end 对齐，不需要这个 */
-    border: none; /* 确保无边框 */
-    border-radius: 5px; /* 确保圆角 */
-    cursor: pointer; /* 确保鼠标指针 */
-    transition: background-color 0.3s ease; /* 确保过渡效果 */
+    margin-top: 0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .filters-container button#resetFiltersButton:hover {
     background-color: #5a6268;
 }
 
-/* ==========================================================================
-   ECharts 图表容器 (#benchmarkChartContainer)
-   ========================================================================== */
 #benchmarkChartContainer {
     width: 100%;
-    /* height: 400px; 在HTML中设置 */
-    /* margin-bottom: 30px; 在HTML中设置 */
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -394,11 +348,8 @@ button:disabled:hover {
     box-sizing: border-box;
 }
 
-/* ==========================================================================
-   结果列表区域 (.results-container, #loading-message, #results-list)
-   ========================================================================== */
 .results-container {
-    margin-top: 0; /* 因为上方已有H2 */
+    margin-top: 0;
     background-color: #fdfdfd;
     padding: 20px;
     border-radius: 8px;
@@ -449,9 +400,6 @@ button:disabled:hover {
     margin-top: 10px;
 }
 
-/* ==========================================================================
-   移动端响应式样式 ( <= 768px )
-   ========================================================================== */
 @media (max-width: 768px) {
     body {
         flex-direction: column;
@@ -472,7 +420,7 @@ button:disabled:hover {
     .main-content {
         margin: 0;
         padding: 15px;
-        padding-bottom: 70px; /* 为底部导航栏留出空间 */
+        padding-bottom: 70px;
         border-radius: 0;
         box-shadow: none;
     }
@@ -526,10 +474,10 @@ button:disabled:hover {
         margin-bottom: 20px;
     }
     .filter-group,
-    .filters-container select, /* 确保筛选器中的select也撑满 */
+    .filters-container select,
     .filters-container button#resetFiltersButton {
         width: 100%;
-        min-width: 0; /* 重置桌面端的min-width */
+        min-width: 0;
         margin-top: 0;
     }
     .filters-container button#resetFiltersButton {
@@ -551,13 +499,10 @@ button:disabled:hover {
     }
 }
 
-/* ==========================================================================
-   更小屏幕的微调 ( <= 375px ) - 可选
-   ========================================================================== */
 @media (max-width: 375px) {
     .main-content {
         padding: 10px;
-        padding-bottom: 65px; /* 对应调整 */
+        padding-bottom: 65px;
     }
     h1 {
         font-size: 1.3em;
@@ -570,13 +515,13 @@ button:disabled:hover {
     }
     .manual-input-warning,
     .benchmark-type-description {
-        font-size: 0.8em; /* 调整使与0.85em有区分或统一 */
+        font-size: 0.8em;
     }
     button[type="submit"],
     .filters-container button#resetFiltersButton {
         font-size: 0.95em;
     }
-    select, /* 全局select在小屏幕上的字体 */
+    select,
     .filters-container select {
         font-size: 0.95em;
     }

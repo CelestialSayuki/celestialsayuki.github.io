@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ****** Firebase 配置 ******
     const firebaseConfig = {
-        apiKey: "AIzaSyAdRlF2QHuVPBI86khxM-4YT06VSY0-s_0", // 替换为您的真实配置
+        apiKey: "AIzaSyAdRlF2QHuVPBI86khxM-4YT06VSY0-s_0",
         authDomain: "speedometerdatauploader.firebaseapp.com",
         projectId: "speedometerdatauploader",
         storageBucket: "speedometerdatauploader.firebasestorage.app",
@@ -11,21 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    // ****** ****************** ******
 
-    // DOM 元素获取
     const sidebarMenuItems = document.querySelectorAll('.sidebar .menu-item');
     const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item');
     const contentSections = document.querySelectorAll('.content-section');
     const uploadForm = document.getElementById('uploadForm');
     const messageDiv = document.getElementById('message');
-    const resultsList = document.getElementById('results-list');
-    const loadingMessage = document.getElementById('loading-message');
     const browserVersionInput = document.getElementById('browserVersion');
     const submitBenchmarkButton = document.getElementById('submitBenchmarkButton');
-    const benchmarkTypeSelectForm = document.getElementById('benchmarkType'); // 上传表单中的类型选择
+    const benchmarkTypeSelectForm = document.getElementById('benchmarkType');
 
-    // 筛选器元素
     const filterBenchmarkTypeSelect = document.getElementById('filterBenchmarkType');
     const filterBrowserVersionSelect = document.getElementById('filterBrowserVersion');
     const filterCpuInfoSelect = document.getElementById('filterCpuInfo');
@@ -34,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let benchmarkChart = null;
     let allBenchmarkData = [];
 
-    // ****** 新增：检测iOS/iPadOS设备 ******
     function isIOSorIPadOS() {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
@@ -46,17 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     }
 
-    // ****** 新增：处理iOS/iPadOS设备上的跑分类型选择 ******
     function handleBenchmarkTypeForAppleMobileDevices() {
         if (isIOSorIPadOS()) {
             if (benchmarkTypeSelectForm) {
-                benchmarkTypeSelectForm.value = 'Peak'; // 自动选择 Peak
-                benchmarkTypeSelectForm.disabled = true;  // 禁用选择框
+                benchmarkTypeSelectForm.value = 'Peak';
+                benchmarkTypeSelectForm.disabled = true;
             }
         }
     }
     handleBenchmarkTypeForAppleMobileDevices();
-
 
     function autofillBrowserInfo() {
         if (!browserVersionInput) return;
@@ -76,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             browserName = 'Opera';
             const operaVersion = userAgent.match(/(OPR|Opera)\/(\d+\.\d+\.\d+\.\d+)/);
             if (operaVersion && operaVersion[2]) browserVersion = operaVersion[2];
-        } else if (userAgent.includes('Chrome') && !userAgent.includes('Safari') && !userAgent.includes('Edg')) { // Added !userAgent.includes('Edg')
+        } else if (userAgent.includes('Chrome') && !userAgent.includes('Safari') && !userAgent.includes('Edg')) {
             browserName = 'Chrome';
             const chromeVersion = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
             if (chromeVersion && chromeVersion[1]) browserVersion = chromeVersion[1];
@@ -111,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (targetId === 'results-section') {
                 loadUploadedResults();
-                // No explicit resize call needed here if init is correct due to container visibility.
             }
         }
     }
@@ -121,14 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const initiallyActiveSection = document.querySelector('.content-section.active');
     if (initiallyActiveSection) {
-        // If results-section is initially active (e.g. from URL hash or dev testing), load results.
         if (initiallyActiveSection.id === 'results-section') {
             loadUploadedResults();
         } else {
-             activateTab(initiallyActiveSection.id); // Ensure correct state for other tabs if needed
+            activateTab(initiallyActiveSection.id);
         }
     }
-
 
     uploadForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -157,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
             autofillBrowserInfo();
             handleBenchmarkTypeForAppleMobileDevices();
             if (document.getElementById('results-section').classList.contains('active')) {
-                loadUploadedResults(); // Refresh results if currently on that tab
+                loadUploadedResults();
             }
         } catch (error) {
             console.error('上传结果失败:', error);
@@ -198,19 +186,18 @@ document.addEventListener('DOMContentLoaded', () => {
             filterCpuInfoSelect.appendChild(option);
         });
     }
-    
-    function applyFiltersAndRender() {
-        const chartContainer = document.getElementById('benchmarkChartContainer'); // Get chart container here
 
-        if (!allBenchmarkData.length) { // Handle no data early
-            if (benchmarkChart) { // If chart exists, dispose it
+    function applyFiltersAndRender() {
+        const chartContainer = document.getElementById('benchmarkChartContainer');
+
+        if (!allBenchmarkData.length) {
+            if (benchmarkChart) {
                 benchmarkChart.dispose();
                 benchmarkChart = null;
             }
-            if (chartContainer) { // If container exists, show no data message
-                 chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>';
+            if (chartContainer) {
+                chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>';
             }
-            renderResultsList([]); // Render empty list
             return;
         }
 
@@ -229,15 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedCpuInfo) {
             filteredData = filteredData.filter(item => item.cpuInfo === selectedCpuInfo);
         }
-        
-        renderResultsList(filteredData);
 
         const chartDataProcessed = {};
         filteredData.forEach(item => {
-            const key = item.cpuInfo; // Group by CPU Info for highest score
+            const key = item.cpuInfo;
             if (!chartDataProcessed[key] || item.speedometerScore > chartDataProcessed[key].score) {
                 chartDataProcessed[key] = {
-                    device: key, // This is the CPU Info
+                    device: key,
                     score: item.speedometerScore,
                     benchmarkType: item.benchmarkType,
                     browserVersion: item.browserVersion,
@@ -246,47 +231,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
         });
-        
+
         const chartDataForEcharts = Object.values(chartDataProcessed).sort((a,b) => b.score - a.score);
 
         renderBenchmarkChart(chartDataForEcharts);
     }
 
-    function renderResultsList(dataToRender) {
-        resultsList.innerHTML = '';
-        if (dataToRender.length === 0) {
-            resultsList.innerHTML = '<li><p>没有符合筛选条件的结果。</p></li>';
-            return;
-        }
-        dataToRender.forEach(result => {
-            const listItem = document.createElement('li');
-            const uploadTime = result.timestamp && result.timestamp.toDate ? result.timestamp.toDate().toLocaleString() : 'N/A';
-            listItem.innerHTML = `
-                <strong>分数:</strong> ${result.speedometerScore || 'N/A'} (误差: ${result.speedometerError || 'N/A'})<br>
-                <strong>类型:</strong> ${result.benchmarkType || 'N/A'}<br>
-                <strong>浏览器:</strong> ${result.browserVersion || 'N/A'}<br>
-                <strong>CPU:</strong> ${result.cpuInfo || 'N/A'}<br>
-                <p class="upload-time">上传时间: ${uploadTime}</p>
-            `;
-            resultsList.appendChild(listItem);
-        });
-    }
-
     async function loadUploadedResults() {
-        if (!resultsList || !loadingMessage) return;
-        
         const chartContainer = document.getElementById('benchmarkChartContainer');
-        loadingMessage.style.display = 'block';
-        resultsList.style.display = 'none'; // Hide list while loading
 
-        // --- MODIFICATION START ---
-        // Ensure the chart container itself is set to display: block BEFORE chart initialization.
-        // Its parent (results-section) is already made active (display:block) by activateTab.
         if (chartContainer) {
             chartContainer.style.display = 'block';
         }
-        // --- MODIFICATION END ---
-        
+
         const currentBenchmarkTypeFilter = filterBenchmarkTypeSelect.value;
         const currentBrowserFilter = filterBrowserVersionSelect.value;
         const currentCpuFilter = filterCpuInfoSelect.value;
@@ -295,21 +252,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const snapshot = await db.collection('speedometer_results')
                 .orderBy('timestamp', 'desc')
                 .get();
-            
+
             allBenchmarkData = [];
             if (!snapshot.empty) {
                 snapshot.forEach(doc => {
                     allBenchmarkData.push(doc.data());
                 });
             }
-            
-            populateFilterOptions(allBenchmarkData); // This will repopulate filters based on all data
-            
-            // Restore previous filter values if they still exist in the new options
+
+            populateFilterOptions(allBenchmarkData);
+
             if (filterBenchmarkTypeSelect.querySelector(`option[value="${currentBenchmarkTypeFilter}"]`)) {
                 filterBenchmarkTypeSelect.value = currentBenchmarkTypeFilter;
             } else {
-                filterBenchmarkTypeSelect.value = ""; // Reset if previous value no longer valid
+                filterBenchmarkTypeSelect.value = "";
             }
             if (filterBrowserVersionSelect.querySelector(`option[value="${currentBrowserFilter}"]`)) {
                 filterBrowserVersionSelect.value = currentBrowserFilter;
@@ -322,23 +278,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterCpuInfoSelect.value = "";
             }
 
-            applyFiltersAndRender(); // This will call renderBenchmarkChart which inits the chart
-
-            loadingMessage.style.display = 'none';
-            resultsList.style.display = ''; // Show list
-            // chartContainer display is handled above and within applyFiltersAndRender for no-data scenarios
+            applyFiltersAndRender();
 
         } catch (error) {
             console.error('加载结果失败:', error);
-            loadingMessage.style.display = 'none';
-            resultsList.style.display = ''; // Show list area even on error
             if (chartContainer) {
-                chartContainer.style.display = 'block'; // Ensure visible for error message
+                chartContainer.style.display = 'block';
                 chartContainer.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">图表数据加载失败: ${error.message || '未知错误'}</p>`;
             }
-            resultsList.innerHTML = `<li><p class="error-message">加载结果列表失败: ${error.message || '未知错误'}</p></li>`;
-            allBenchmarkData = []; // Clear data on error
-            populateFilterOptions([]); // Clear filter options
+            allBenchmarkData = [];
+            populateFilterOptions([]);
         }
     }
 
@@ -361,8 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
             chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
             return;
         }
-        
-        // Data is already sorted by score descending: const chartDataForEcharts = Object.values(chartDataProcessed).sort((a,b) => b.score - a.score);
 
         const chartOption = {
             title: {
@@ -389,56 +336,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             },
             grid: {
-                left: '10%', // Increased left padding for y-axis labels
-                right: '8%',  // Adjusted right padding for labels on bars
+                left: '10%',
+                right: '8%',
                 bottom: '3%',
                 containLabel: true
             },
-            // xAxis is now the value axis (horizontal)
             xAxis: {
                 type: 'value',
                 name: '最高分数',
                 nameLocation: 'center',
-                nameGap: 20 // Adjust gap as needed
+                nameGap: 20
             },
-            // yAxis is now the category axis (vertical)
             yAxis: {
                 type: 'category',
-                data: dataForChart.map(item => item.device), // CPU models
-                inverse: true, // Display highest score at the top
+                data: dataForChart.map(item => item.device),
+                inverse: true,
                 axisLabel: {
                     interval: 0,
-                    // rotate: 0, // Rotation usually not needed for horizontal y-axis labels
                     formatter: function (value) {
-                        return value.length > 25 ? value.substring(0, 25) + '...' : value; // Adjust length as needed
+                        return value.length > 25 ? value.substring(0, 25) + '...' : value;
                     }
                 }
             },
-            dataZoom: [
-                {
-                    type: 'slider',
-                    yAxisIndex: 0, // Apply to the y-axis
-                    start: 0,
-                    end: dataForChart.length > 10 ? (10 / dataForChart.length * 100) : 100
-                },
-                {
-                    type: 'inside',
-                    yAxisIndex: 0, // Apply to the y-axis
-                    start: 0,
-                    end: 100
-                }
-            ],
             series: [{
                 name: '最高分数',
                 type: 'bar',
-                barMaxWidth: '60%', // Can be adjusted or removed for auto width
+                barMaxWidth: '60%',
                 data: dataForChart.map(item => item.score),
                 itemStyle: {
-                    borderRadius: [0, 5, 5, 0] // Rounded right edges for horizontal bars
+                    borderRadius: [0, 5, 5, 0]
                 },
                 label: {
                     show: true,
-                    position: 'right', // Position labels to the right of bars
+                    position: 'right',
                     formatter: '{c}'
                 }
             }]
@@ -458,26 +388,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function showMessage(msg, type) {
         if (!messageDiv) return;
         messageDiv.textContent = msg;
-        messageDiv.className = ''; // Clear existing classes
-        messageDiv.classList.add(type); // Add success or error class
-        messageDiv.classList.remove('hidden'); // Remove hidden to ensure display:block/opacity transition works
-        
-        // Trigger reflow to ensure transition plays
+        messageDiv.className = '';
+        messageDiv.classList.add(type);
+        messageDiv.classList.remove('hidden');
+
         void messageDiv.offsetWidth;
 
-        messageDiv.style.display = 'block'; // Make sure it's block
-        messageDiv.style.opacity = '1'; // Fade in
+        messageDiv.style.display = 'block';
+        messageDiv.style.opacity = '1';
 
         setTimeout(() => {
-            messageDiv.style.opacity = '0'; // Fade out
+            messageDiv.style.opacity = '0';
             setTimeout(() => {
-                messageDiv.style.display = 'none'; // Then hide
-                messageDiv.classList.add('hidden'); // Add hidden back if needed
-            }, 500); // Match CSS transition duration
+                messageDiv.style.display = 'none';
+                messageDiv.classList.add('hidden');
+            }, 500);
         }, 5000);
     }
 
-    // Event listener bindings for filters
     if (filterBenchmarkTypeSelect) filterBenchmarkTypeSelect.addEventListener('change', applyFiltersAndRender);
     if (filterBrowserVersionSelect) filterBrowserVersionSelect.addEventListener('change', applyFiltersAndRender);
     if (filterCpuInfoSelect) filterCpuInfoSelect.addEventListener('change', applyFiltersAndRender);
@@ -489,7 +417,4 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFiltersAndRender();
         });
     }
-
-    // Initial load check if results-section is the active one from the start
-    // This was moved up and refined to handle general initial active section
 });
