@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             browserVersionInput.value = `${browserName} ${browserVersion}`;
         }
     }
+    autofillBrowserInfo();
 
     function activateTab(targetId) {
         contentSections.forEach(section => section.classList.remove('active'));
