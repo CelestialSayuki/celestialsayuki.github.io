@@ -78,22 +78,27 @@ document.addEventListener('DOMContentLoaded', () => {
         let browserName = '未知浏览器';
         let browserVersion = '未知版本';
 
+        // 检查 Edge
         if (userAgent.includes('Edg')) {
             browserName = 'Edge';
             const edgeVersion = userAgent.match(/Edg\/(\d+\.\d+\.\d+\.\d+)/);
             if (edgeVersion && edgeVersion[1]) browserVersion = edgeVersion[1];
+        // 检查 Opera
         } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) {
             browserName = 'Opera';
             const operaVersion = userAgent.match(/(OPR|Opera)\/(\d+\.\d+\.\d+\.\d+)/);
             if (operaVersion && operaVersion[2]) browserVersion = operaVersion[2];
+        // 检查 Chrome (在 Edge 和 Opera 之后)
         } else if (userAgent.includes('Chrome')) {
             browserName = 'Chrome';
             const chromeVersion = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
             if (chromeVersion && chromeVersion[1]) browserVersion = chromeVersion[1];
+        // 检查 Firefox
         } else if (userAgent.includes('Firefox')) {
             browserName = 'Firefox';
             const firefoxVersion = userAgent.match(/Firefox\/(\d+\.\d+)/);
             if (firefoxVersion && firefoxVersion[1]) browserVersion = firefoxVersion[1];
+        // 检查 Safari (在所有其他浏览器之后)
         } else if (userAgent.includes('Safari')) {
             browserName = 'Safari';
             let safariVersionMatch = userAgent.match(/Version\/(\d+(\.\d+){1,2})/);
@@ -106,6 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+
+        // 如果上述所有条件都未匹配，则显示原始 UA
         if (browserName === '未知浏览器') {
             browserVersionInput.value = userAgent;
         } else {
