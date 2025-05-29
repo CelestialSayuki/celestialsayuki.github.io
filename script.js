@@ -37,12 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ****** 新增：检测iOS/iPadOS设备 ******
     function isIOSorIPadOS() {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        // iPadOS 13+ user agent may not contain "iPad" but will look like a Mac.
-        // A more robust check might involve checking for touch capabilities + Mac platform
         if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
             return true;
         }
-        // For iPadOS 13+ that pretends to be a Mac
         if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) {
             return true;
         }
@@ -58,11 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    // 调用此函数以应用逻辑
     handleBenchmarkTypeForAppleMobileDevices();
 
 
-    function autofillBrowserInfo() { /* ... (保持不变) ... */
+    function autofillBrowserInfo() {
         if (!browserVersionInput) return;
         let userAgent = navigator.userAgent;
         let browserName = '未知浏览器';
@@ -80,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             browserName = 'Opera';
             const operaVersion = userAgent.match(/(OPR|Opera)\/(\d+\.\d+\.\d+\.\d+)/);
             if (operaVersion && operaVersion[2]) browserVersion = operaVersion[2];
-        } else if (userAgent.includes('Chrome') && !userAgent.includes('Safari')) {
+        } else if (userAgent.includes('Chrome') && !userAgent.includes('Safari') && !userAgent.includes('Edg')) { // Added !userAgent.includes('Edg')
             browserName = 'Chrome';
             const chromeVersion = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
             if (chromeVersion && chromeVersion[1]) browserVersion = chromeVersion[1];
@@ -100,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     autofillBrowserInfo();
 
-    function activateTab(targetId) { /* ... (保持不变) ... */
+    function activateTab(targetId) {
         contentSections.forEach(section => section.classList.remove('active'));
         const targetSection = document.getElementById(targetId);
         if (targetSection) {
@@ -115,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (targetId === 'results-section') {
                 loadUploadedResults();
+                // No explicit resize call needed here if init is correct due to container visibility.
             }
         }
     }
@@ -123,9 +120,17 @@ document.addEventListener('DOMContentLoaded', () => {
     bottomNavItems.forEach(item => item.addEventListener('click', () => activateTab(item.dataset.target)));
 
     const initiallyActiveSection = document.querySelector('.content-section.active');
-    if (initiallyActiveSection) activateTab(initiallyActiveSection.id);
+    if (initiallyActiveSection) {
+        // If results-section is initially active (e.g. from URL hash or dev testing), load results.
+        if (initiallyActiveSection.id === 'results-section') {
+            loadUploadedResults();
+        } else {
+             activateTab(initiallyActiveSection.id); // Ensure correct state for other tabs if needed
+        }
+    }
 
-    uploadForm.addEventListener('submit', async (event) => { /* ... (保持不变，benchmarkType 会正确获取到，即使是禁用的select) ... */
+
+    uploadForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (submitBenchmarkButton) submitBenchmarkButton.disabled = true;
 
@@ -133,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = {
             speedometerScore: parseFloat(formData.get('speedometerScore')) || 0,
             speedometerError: formData.get('speedometerError'),
-            benchmarkType: benchmarkTypeSelectForm.value, // 直接从select元素取值，即使它被禁用
+            benchmarkType: benchmarkTypeSelectForm.value,
             browserVersion: formData.get('browserVersion'),
             cpuInfo: formData.get('cpuInfo'),
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -150,9 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('结果上传成功！', 'success');
             uploadForm.reset();
             autofillBrowserInfo();
-            handleBenchmarkTypeForAppleMobileDevices(); // 重置表单后再次应用 iOS/iPadOS 逻辑
+            handleBenchmarkTypeForAppleMobileDevices();
             if (document.getElementById('results-section').classList.contains('active')) {
-                loadUploadedResults();
+                loadUploadedResults(); // Refresh results if currently on that tab
             }
         } catch (error) {
             console.error('上传结果失败:', error);
@@ -162,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function populateFilterOptions(data) { /* ... (保持不变) ... */
+    function populateFilterOptions(data) {
         if (!filterBenchmarkTypeSelect || !filterBrowserVersionSelect || !filterCpuInfoSelect) return;
 
         const uniqueBenchmarkTypes = [...new Set(data.map(item => item.benchmarkType).filter(Boolean))].sort();
@@ -194,19 +199,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    function applyFiltersAndRender() { /* ... (保持不变) ... */
-        if (!allBenchmarkData.length && benchmarkChart) {
-            benchmarkChart.dispose();
-            benchmarkChart = null;
-            const chartContainer = document.getElementById('benchmarkChartContainer');
-            if(chartContainer) chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>';
-            renderResultsList([]);
-            return;
-        }
-        if (!allBenchmarkData.length) {
-             renderResultsList([]);
-             const chartContainer = document.getElementById('benchmarkChartContainer');
-             if(chartContainer) chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>';
+    function applyFiltersAndRender() {
+        const chartContainer = document.getElementById('benchmarkChartContainer'); // Get chart container here
+
+        if (!allBenchmarkData.length) { // Handle no data early
+            if (benchmarkChart) { // If chart exists, dispose it
+                benchmarkChart.dispose();
+                benchmarkChart = null;
+            }
+            if (chartContainer) { // If container exists, show no data message
+                 chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>';
+            }
+            renderResultsList([]); // Render empty list
             return;
         }
 
@@ -230,10 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const chartDataProcessed = {};
         filteredData.forEach(item => {
-            const key = item.cpuInfo;
+            const key = item.cpuInfo; // Group by CPU Info for highest score
             if (!chartDataProcessed[key] || item.speedometerScore > chartDataProcessed[key].score) {
                 chartDataProcessed[key] = {
-                    device: key,
+                    device: key, // This is the CPU Info
                     score: item.speedometerScore,
                     benchmarkType: item.benchmarkType,
                     browserVersion: item.browserVersion,
@@ -248,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderBenchmarkChart(chartDataForEcharts);
     }
 
-    function renderResultsList(dataToRender) { /* ... (保持不变) ... */
+    function renderResultsList(dataToRender) {
         resultsList.innerHTML = '';
         if (dataToRender.length === 0) {
             resultsList.innerHTML = '<li><p>没有符合筛选条件的结果。</p></li>';
@@ -256,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         dataToRender.forEach(result => {
             const listItem = document.createElement('li');
-            const uploadTime = result.timestamp ? result.timestamp.toDate().toLocaleString() : 'N/A';
+            const uploadTime = result.timestamp && result.timestamp.toDate ? result.timestamp.toDate().toLocaleString() : 'N/A';
             listItem.innerHTML = `
                 <strong>分数:</strong> ${result.speedometerScore || 'N/A'} (误差: ${result.speedometerError || 'N/A'})<br>
                 <strong>类型:</strong> ${result.benchmarkType || 'N/A'}<br>
@@ -268,13 +272,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    async function loadUploadedResults() { /* ... (保持不变) ... */
+    async function loadUploadedResults() {
         if (!resultsList || !loadingMessage) return;
         
         const chartContainer = document.getElementById('benchmarkChartContainer');
         loadingMessage.style.display = 'block';
-        resultsList.style.display = 'none';
-        if (chartContainer) chartContainer.style.display = 'none';
+        resultsList.style.display = 'none'; // Hide list while loading
+
+        // --- MODIFICATION START ---
+        // Ensure the chart container itself is set to display: block BEFORE chart initialization.
+        // Its parent (results-section) is already made active (display:block) by activateTab.
+        if (chartContainer) {
+            chartContainer.style.display = 'block';
+        }
+        // --- MODIFICATION END ---
         
         const currentBenchmarkTypeFilter = filterBenchmarkTypeSelect.value;
         const currentBrowserFilter = filterBrowserVersionSelect.value;
@@ -292,17 +303,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             
-            populateFilterOptions(allBenchmarkData);
+            populateFilterOptions(allBenchmarkData); // This will repopulate filters based on all data
             
+            // Restore previous filter values if they still exist in the new options
             if (filterBenchmarkTypeSelect.querySelector(`option[value="${currentBenchmarkTypeFilter}"]`)) {
-                 filterBenchmarkTypeSelect.value = currentBenchmarkTypeFilter;
+                filterBenchmarkTypeSelect.value = currentBenchmarkTypeFilter;
             } else {
-                 filterBenchmarkTypeSelect.value = "";
+                filterBenchmarkTypeSelect.value = ""; // Reset if previous value no longer valid
             }
             if (filterBrowserVersionSelect.querySelector(`option[value="${currentBrowserFilter}"]`)) {
-                 filterBrowserVersionSelect.value = currentBrowserFilter;
+                filterBrowserVersionSelect.value = currentBrowserFilter;
             } else {
-                 filterBrowserVersionSelect.value = "";
+                filterBrowserVersionSelect.value = "";
             }
             if (filterCpuInfoSelect.querySelector(`option[value="${currentCpuFilter}"]`)) {
                 filterCpuInfoSelect.value = currentCpuFilter;
@@ -310,25 +322,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterCpuInfoSelect.value = "";
             }
 
-            applyFiltersAndRender();
+            applyFiltersAndRender(); // This will call renderBenchmarkChart which inits the chart
 
             loadingMessage.style.display = 'none';
-            resultsList.style.display = '';
-            if (chartContainer) chartContainer.style.display = 'block';
+            resultsList.style.display = ''; // Show list
+            // chartContainer display is handled above and within applyFiltersAndRender for no-data scenarios
 
         } catch (error) {
             console.error('加载结果失败:', error);
             loadingMessage.style.display = 'none';
-            resultsList.style.display = '';
-            if (chartContainer) chartContainer.style.display = 'block';
-            resultsList.innerHTML = `<li><p class="error-message">加载结果失败: ${error.message || '未知错误'}</p></li>`;
-            if (chartContainer) chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px; color: red;">图表数据加载失败。</p>';
-            allBenchmarkData = [];
-            populateFilterOptions([]);
+            resultsList.style.display = ''; // Show list area even on error
+            if (chartContainer) {
+                chartContainer.style.display = 'block'; // Ensure visible for error message
+                chartContainer.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">图表数据加载失败: ${error.message || '未知错误'}</p>`;
+            }
+            resultsList.innerHTML = `<li><p class="error-message">加载结果列表失败: ${error.message || '未知错误'}</p></li>`;
+            allBenchmarkData = []; // Clear data on error
+            populateFilterOptions([]); // Clear filter options
         }
     }
 
-    function renderBenchmarkChart(dataForChart) { /* ... (保持不变，但 setOption(..., true)很重要) ... */
+    function renderBenchmarkChart(dataForChart) {
         const chartContainer = document.getElementById('benchmarkChartContainer');
         if (!echarts || !chartContainer) {
             console.error('ECharts 未加载或图表容器未找到');
@@ -336,14 +350,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Ensure container is block, though loadUploadedResults should handle this for initial load.
+        // This is more a safeguard for other calls.
+        chartContainer.style.display = 'block';
+
         if (benchmarkChart) {
-            benchmarkChart.dispose();
+            benchmarkChart.dispose(); // Dispose the old instance before creating a new one
         }
+        // Now that chartContainer is definitely display:block, init the chart
         benchmarkChart = echarts.init(chartContainer);
 
         if (dataForChart.length === 0) {
+            // If no data, clear the chart area and show a message.
+            // echarts.init might have cleared it, but this makes sure.
             chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
-            return;
+            return; // Don't proceed to setOption if no data
         }
         
         const chartOption = {
@@ -355,25 +376,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
                 formatter: function (params) {
-                    const item = params[0];
+                    const item = params[0]; // Assuming single series
+                    // Find the original data item to get all details
                     const originalDataItem = dataForChart.find(d => d.device === item.name && d.score === item.value);
                     if (originalDataItem) {
-                         return `
+                        return `
                             <strong>设备 (CPU): ${item.name}</strong><br/>
                             最高分数: ${item.value}<br/>
                             跑分类型: ${originalDataItem.benchmarkType || 'N/A'}<br/>
                             浏览器: ${originalDataItem.browserVersion || 'N/A'}<br/>
                             误差: ${originalDataItem.speedometerError || 'N/A'}<br/>
-                            记录时间: ${originalDataItem.timestamp ? originalDataItem.timestamp.toDate().toLocaleString() : 'N/A'}
+                            记录时间: ${originalDataItem.timestamp && originalDataItem.timestamp.toDate ? originalDataItem.timestamp.toDate().toLocaleString() : 'N/A'}
                         `;
                     }
-                    return `${item.name}<br/>分数: ${item.value}`;
+                    return `${item.name}<br/>分数: ${item.value}`; // Fallback
                 }
             },
             grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
             xAxis: {
                 type: 'category',
-                data: dataForChart.map(item => item.device),
+                data: dataForChart.map(item => item.device), // device is CPU Info
                 axisLabel: { interval: 0, rotate: 30, formatter: function (value) { return value.length > 15 ? value.substring(0, 15) + '...' : value; } }
             },
             yAxis: { type: 'value', name: '最高分数' },
@@ -390,47 +412,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 label: { show: true, position: 'top', formatter: '{c}' }
             }]
         };
-        benchmarkChart.setOption(chartOption, true);
+        benchmarkChart.setOption(chartOption, true); // true for notMerging, good for dynamic data
 
-        window.removeEventListener('resize', resizeChart);
+        // Manage resize listener
+        window.removeEventListener('resize', resizeChart); // Remove old one if any
         window.addEventListener('resize', resizeChart);
     }
     
-    function resizeChart() { /* ... (保持不变) ... */
+    function resizeChart() {
         if (benchmarkChart) {
             benchmarkChart.resize();
         }
     }
 
-    function showMessage(msg, type) { /* ... (保持不变) ... */
+    function showMessage(msg, type) {
         if (!messageDiv) return;
         messageDiv.textContent = msg;
-        messageDiv.className = '';
-        messageDiv.classList.add(type);
-        messageDiv.classList.remove('hidden');
+        messageDiv.className = ''; // Clear existing classes
+        messageDiv.classList.add(type); // Add success or error class
+        messageDiv.classList.remove('hidden'); // Remove hidden to ensure display:block/opacity transition works
+        
+        // Trigger reflow to ensure transition plays
         void messageDiv.offsetWidth;
-        messageDiv.style.display = 'block';
-        messageDiv.style.opacity = '1';
+
+        messageDiv.style.display = 'block'; // Make sure it's block
+        messageDiv.style.opacity = '1'; // Fade in
+
         setTimeout(() => {
-            messageDiv.style.opacity = '0';
+            messageDiv.style.opacity = '0'; // Fade out
             setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 500);
+                messageDiv.style.display = 'none'; // Then hide
+                messageDiv.classList.add('hidden'); // Add hidden back if needed
+            }, 500); // Match CSS transition duration
         }, 5000);
     }
 
-    // 事件监听器绑定
-    filterBenchmarkTypeSelect.addEventListener('change', applyFiltersAndRender);
-    filterBrowserVersionSelect.addEventListener('change', applyFiltersAndRender);
-    filterCpuInfoSelect.addEventListener('change', applyFiltersAndRender);
-    resetFiltersButton.addEventListener('click', () => {
-        filterBenchmarkTypeSelect.value = '';
-        filterBrowserVersionSelect.value = '';
-        filterCpuInfoSelect.value = '';
-        applyFiltersAndRender();
-    });
-
-    if (document.getElementById('results-section')?.classList.contains('active')) {
-        loadUploadedResults();
+    // Event listener bindings for filters
+    if (filterBenchmarkTypeSelect) filterBenchmarkTypeSelect.addEventListener('change', applyFiltersAndRender);
+    if (filterBrowserVersionSelect) filterBrowserVersionSelect.addEventListener('change', applyFiltersAndRender);
+    if (filterCpuInfoSelect) filterCpuInfoSelect.addEventListener('change', applyFiltersAndRender);
+    if (resetFiltersButton) {
+        resetFiltersButton.addEventListener('click', () => {
+            if(filterBenchmarkTypeSelect) filterBenchmarkTypeSelect.value = '';
+            if(filterBrowserVersionSelect) filterBrowserVersionSelect.value = '';
+            if(filterCpuInfoSelect) filterCpuInfoSelect.value = '';
+            applyFiltersAndRender();
+        });
     }
+
+    // Initial load check if results-section is the active one from the start
+    // This was moved up and refined to handle general initial active section
 });
