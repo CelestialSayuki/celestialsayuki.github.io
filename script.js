@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterBrowserVersionSelect = document.getElementById('filterBrowserVersion');
     const filterCpuInfoSelect = document.getElementById('filterCpuInfo');
     const resetFiltersButton = document.getElementById('resetFiltersButton');
+    const refreshResultsButton = document.getElementById('refreshResultsButton');
 
     let benchmarkChart = null;
     let allBenchmarkData = [];
@@ -464,4 +465,8 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFiltersAndRender();
         });
     }
+    if (refreshResultsButton) {
+        refreshResultsButton.addEventListener('click', () => {
+            loadUploadedResults();
+        });
 });

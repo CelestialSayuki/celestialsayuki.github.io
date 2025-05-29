@@ -302,8 +302,8 @@ button:disabled:hover {
     color: #555;
     font-weight: normal;
 }
-
-.filters-container button#resetFiltersButton {
+.filters-container button#resetFiltersButton,
+.filters-container button#refreshResultsButton {
     background-color: #6c757d;
     color: white;
     padding: 9px 15px;
@@ -315,7 +315,8 @@ button:disabled:hover {
     transition: background-color 0.3s ease;
 }
 
-.filters-container button#resetFiltersButton:hover {
+.filters-container button#resetFiltersButton:hover,
+.filters-container button#refreshResultsButton:hover {
     background-color: #5a6268;
 }
 
@@ -450,12 +451,14 @@ button:disabled:hover {
     }
     .filter-group,
     .filters-container select,
-    .filters-container button#resetFiltersButton {
+    .filters-container button#resetFiltersButton,
+    .filters-container button#refreshResultsButton {
         width: 100%;
         min-width: 0;
         margin-top: 0;
     }
-    .filters-container button#resetFiltersButton {
+    .filters-container button#resetFiltersButton,
+    .filters-container button#refreshResultsButton {
         padding: 12px;
     }
 
@@ -488,8 +491,13 @@ button:disabled:hover {
     .bottom-nav .nav-item {
         font-size: 0.8em;
     }
+    
+    .benchmark-type-description {
+        font-size: 0.8em;
+    }
     button[type="submit"],
-    .filters-container button#resetFiltersButton {
+    .filters-container button#resetFiltersButton,
+    .filters-container button#refreshResultsButton {
         font-size: 0.95em;
     }
     select,
