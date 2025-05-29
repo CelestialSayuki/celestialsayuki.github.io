@@ -1,15 +1,10 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const firebaseConfig = {
-        apiKey: "AIzaSyAdRlF2QHuVPBI86khxM-4YT06VSY0-s_0",
-        authDomain: "speedometerdatauploader.firebaseapp.com",
-        projectId: "speedometerdatauploader",
-        storageBucket: "speedometerdatauploader.firebasestorage.app",
-        messagingSenderId: "61305463721",
-        appId: "1:61305463721:web:6398ea7898ca75ba135ab8"
-    };
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+document.addEventListener('DOMContentLoaded', () => {
+    const SUPABASE_URL = 'https://pdmmtiiwdazcvcbyxkor.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkbW10aWl3ZGF6Y3ZjYnl4a29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1MjM3NTMsImV4cCI6MjA2NDA5OTc1M30.FOebKEr65b9mkWH8rCCePYkeNVCWny52T8SqTtX2cjs';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const sidebarMenuItems = document.querySelectorAll('.sidebar .menu-item');
     const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item');
@@ -129,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
             benchmarkType: benchmarkTypeSelectForm.value,
             browserVersion: formData.get('browserVersion'),
             cpuInfo: formData.get('cpuInfo'),
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         if (!data.speedometerScore || !data.speedometerError || !data.benchmarkType || !data.browserVersion || !data.cpuInfo) {
@@ -139,7 +133,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            await db.collection('speedometer_results').add(data);
+            const { data: insertedData, error } = await supabase
+                .from('speedometer_results')
+                .insert([data]);
+
+            if (error) {
+                throw error;
+            }
+
             showMessage('结果上传成功！', 'success');
             uploadForm.reset();
             autofillBrowserInfo();
@@ -249,15 +250,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentCpuFilter = filterCpuInfoSelect.value;
 
         try {
-            const snapshot = await db.collection('speedometer_results')
-                .orderBy('timestamp', 'desc')
-                .get();
+            const { data, error } = await supabase
+                .from('speedometer_results')
+                .select('*')
+                .order('timestamp', { ascending: false });
+
+            if (error) {
+                throw error;
+            }
 
             allBenchmarkData = [];
-            if (!snapshot.empty) {
-                snapshot.forEach(doc => {
-                    allBenchmarkData.push(doc.data());
-                });
+            if (data && data.length > 0) {
+                allBenchmarkData = data;
             }
 
             populateFilterOptions(allBenchmarkData);
@@ -323,13 +327,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const item = params[0];
                     const originalDataItem = dataForChart.find(d => d.device === item.name && d.score === item.value);
                     if (originalDataItem) {
+                        const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
                         return `
                             <strong>设备 (CPU): ${item.name}</strong><br/>
                             最高分数: ${item.value}<br/>
                             跑分类型: ${originalDataItem.benchmarkType || 'N/A'}<br/>
                             浏览器: ${originalDataItem.browserVersion || 'N/A'}<br/>
                             误差: ${originalDataItem.speedometerError || 'N/A'}<br/>
-                            记录时间: ${originalDataItem.timestamp && originalDataItem.timestamp.toDate ? originalDataItem.timestamp.toDate().toLocaleString() : 'N/A'}
+                            记录时间: ${date ? date.toLocaleString() : 'N/A'}
                         `;
                     }
                     return `${item.name}<br/>分数: ${item.value}`;
@@ -412,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resetFiltersButton) {
         resetFiltersButton.addEventListener('click', () => {
             if(filterBenchmarkTypeSelect) filterBenchmarkTypeSelect.value = '';
-            if(filterBrowserVersionSelect) filterBrowserVersionSelect.value = '';
+            if(filterBrowserVersionSelect) filterBrowserTypeSelect.value = '';
             if(filterCpuInfoSelect) filterCpuInfoSelect.value = '';
             applyFiltersAndRender();
         });
