@@ -350,23 +350,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Ensure container is block, though loadUploadedResults should handle this for initial load.
-        // This is more a safeguard for other calls.
         chartContainer.style.display = 'block';
 
         if (benchmarkChart) {
-            benchmarkChart.dispose(); // Dispose the old instance before creating a new one
+            benchmarkChart.dispose();
         }
-        // Now that chartContainer is definitely display:block, init the chart
         benchmarkChart = echarts.init(chartContainer);
 
         if (dataForChart.length === 0) {
-            // If no data, clear the chart area and show a message.
-            // echarts.init might have cleared it, but this makes sure.
             chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
-            return; // Don't proceed to setOption if no data
+            return;
         }
         
+        // Data is already sorted by score descending: const chartDataForEcharts = Object.values(chartDataProcessed).sort((a,b) => b.score - a.score);
+
         const chartOption = {
             title: {
                 text: '设备最高跑分对比 (Speedometer 3.1)',
@@ -376,8 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
                 formatter: function (params) {
-                    const item = params[0]; // Assuming single series
-                    // Find the original data item to get all details
+                    const item = params[0];
                     const originalDataItem = dataForChart.find(d => d.device === item.name && d.score === item.value);
                     if (originalDataItem) {
                         return `
@@ -389,36 +385,70 @@ document.addEventListener('DOMContentLoaded', () => {
                             记录时间: ${originalDataItem.timestamp && originalDataItem.timestamp.toDate ? originalDataItem.timestamp.toDate().toLocaleString() : 'N/A'}
                         `;
                     }
-                    return `${item.name}<br/>分数: ${item.value}`; // Fallback
+                    return `${item.name}<br/>分数: ${item.value}`;
                 }
             },
-            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-            xAxis: {
-                type: 'category',
-                data: dataForChart.map(item => item.device), // device is CPU Info
-                axisLabel: { interval: 0, rotate: 30, formatter: function (value) { return value.length > 15 ? value.substring(0, 15) + '...' : value; } }
+            grid: {
+                left: '10%', // Increased left padding for y-axis labels
+                right: '8%',  // Adjusted right padding for labels on bars
+                bottom: '3%',
+                containLabel: true
             },
-            yAxis: { type: 'value', name: '最高分数' },
+            // xAxis is now the value axis (horizontal)
+            xAxis: {
+                type: 'value',
+                name: '最高分数',
+                nameLocation: 'center',
+                nameGap: 20 // Adjust gap as needed
+            },
+            // yAxis is now the category axis (vertical)
+            yAxis: {
+                type: 'category',
+                data: dataForChart.map(item => item.device), // CPU models
+                inverse: true, // Display highest score at the top
+                axisLabel: {
+                    interval: 0,
+                    // rotate: 0, // Rotation usually not needed for horizontal y-axis labels
+                    formatter: function (value) {
+                        return value.length > 25 ? value.substring(0, 25) + '...' : value; // Adjust length as needed
+                    }
+                }
+            },
             dataZoom: [
-                { type: 'slider', start: 0, end: dataForChart.length > 10 ? (10 / dataForChart.length * 100) : 100 },
-                { type: 'inside', start: 0, end: 100 }
+                {
+                    type: 'slider',
+                    yAxisIndex: 0, // Apply to the y-axis
+                    start: 0,
+                    end: dataForChart.length > 10 ? (10 / dataForChart.length * 100) : 100
+                },
+                {
+                    type: 'inside',
+                    yAxisIndex: 0, // Apply to the y-axis
+                    start: 0,
+                    end: 100
+                }
             ],
             series: [{
                 name: '最高分数',
                 type: 'bar',
-                barMaxWidth: '60%',
+                barMaxWidth: '60%', // Can be adjusted or removed for auto width
                 data: dataForChart.map(item => item.score),
-                itemStyle: { borderRadius: [5, 5, 0, 0] },
-                label: { show: true, position: 'top', formatter: '{c}' }
+                itemStyle: {
+                    borderRadius: [0, 5, 5, 0] // Rounded right edges for horizontal bars
+                },
+                label: {
+                    show: true,
+                    position: 'right', // Position labels to the right of bars
+                    formatter: '{c}'
+                }
             }]
         };
-        benchmarkChart.setOption(chartOption, true); // true for notMerging, good for dynamic data
+        benchmarkChart.setOption(chartOption, true);
 
-        // Manage resize listener
-        window.removeEventListener('resize', resizeChart); // Remove old one if any
+        window.removeEventListener('resize', resizeChart);
         window.addEventListener('resize', resizeChart);
     }
-    
+
     function resizeChart() {
         if (benchmarkChart) {
             benchmarkChart.resize();
