@@ -184,26 +184,6 @@ label {
     border: none;
 }
 
-.manual-input-warning {
-    background-color: #fff3cd;
-    border-left: 5px solid #ffc107;
-    padding: 15px;
-    margin-bottom: 20px;
-    color: #664d03;
-    border-radius: 5px;
-    font-size: 0.95em;
-}
-
-.manual-input-warning p {
-    margin: 0 0 8px 0;
-}
-.manual-input-warning p:last-child {
-    margin-bottom: 0;
-}
-.manual-input-warning p strong {
-    font-weight: bold;
-}
-
 .form-section {
     background-color: #fdfdfd;
     padding: 25px;
@@ -441,11 +421,6 @@ button:disabled:hover {
         height: 300px;
         margin-bottom: 15px;
     }
-
-    .manual-input-warning {
-        padding: 12px;
-        font-size: 0.9em;
-    }
     .benchmark-type-description {
         font-size: 0.8em;
     }
@@ -511,10 +486,6 @@ button:disabled:hover {
         font-size: 1.15em;
     }
     .bottom-nav .nav-item {
-        font-size: 0.8em;
-    }
-    .manual-input-warning,
-    .benchmark-type-description {
         font-size: 0.8em;
     }
     button[type="submit"],

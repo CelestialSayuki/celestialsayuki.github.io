@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const SUPABASE_URL = 'https://pdmmtiiwdazcvcbyxkor.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkbW10aWl3ZGF6Y3ZjYnl4a29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1MjM3NTMsImV4cCI6MjA2NDA5OTc1M30.FOebKEr65b9mkWH8rCCePYkeNVCWny52T8SqTtX2cjs';
 
+    const SPEEDOMETER_IFRAME_ORIGIN = '*'; // 警告: '*' 在生产环境中不安全，请替换为具体的源
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const sidebarMenuItems = document.querySelectorAll('.sidebar .menu-item');
@@ -14,6 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const browserVersionInput = document.getElementById('browserVersion');
     const submitBenchmarkButton = document.getElementById('submitBenchmarkButton');
     const benchmarkTypeSelectForm = document.getElementById('benchmarkType');
+    const speedometerScoreInput = document.getElementById('speedometerScore');
+    const speedometerErrorInput = document.getElementById('speedometerError');
+    const cpuInfoInput = document.getElementById('cpuInfo');
 
     const filterBenchmarkTypeSelect = document.getElementById('filterBenchmarkType');
     const filterBrowserVersionSelect = document.getElementById('filterBrowserVersion');
@@ -22,6 +27,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let benchmarkChart = null;
     let allBenchmarkData = [];
+
+    // ====== 新增：监听来自 Speedometer iframe 的消息 ======
+    window.addEventListener('message', (event) => {
+
+        if (event.data && event.data.type === 'speedometerResult') {
+            const { score, error } = event.data;
+            
+            // 自动填写表单
+            if (speedometerScoreInput) speedometerScoreInput.value = score;
+            if (speedometerErrorInput) speedometerErrorInput.value = error;
+
+            // 自动触发表单提交
+            // 确保其他必填字段（如 cpuInfo, benchmarkType, browserVersion）在提交前已填充
+            if (submitBenchmarkButton) {
+                submitBenchmarkButton.click();
+            } else {
+                uploadForm.dispatchEvent(new Event('submit', { cancelable: true }));
+            }
+        } else if (event.data && event.data.type === 'speedometerResultError') {
+            const { message } = event.data;
+            showMessage(`Speedometer 跑分失败: ${message}`, 'error');
+        }
+    });
 
     function isIOSorIPadOS() {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -124,15 +152,19 @@ document.addEventListener('DOMContentLoaded', () => {
             benchmarkType: benchmarkTypeSelectForm.value,
             browserVersion: formData.get('browserVersion'),
             cpuInfo: formData.get('cpuInfo'),
+            // Supabase 数据库中的 timestamp 列默认值设置为 now()，
+            // 所以这里不需要手动设置 timestamp，它会在插入时自动生成。
         };
 
+        // 新增：检查所有必填字段，尤其是自动填充可能不足的 cpuInfo
         if (!data.speedometerScore || !data.speedometerError || !data.benchmarkType || !data.browserVersion || !data.cpuInfo) {
-            showMessage('请填写所有必填字段，包括跑分类型。', 'error');
+            showMessage('请填写所有必填字段，包括跑分类型和 CPU 型号。', 'error');
             if (submitBenchmarkButton) submitBenchmarkButton.disabled = false;
             return;
         }
 
         try {
+            // 使用 Supabase 插入数据
             const { data: insertedData, error } = await supabase
                 .from('speedometer_results')
                 .insert([data]);
@@ -149,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadUploadedResults();
             }
         } catch (error) {
-            console.error('上传结果失败:', error);
             showMessage(`上传结果失败: ${error.message || '未知错误'}`, 'error');
         } finally {
             if (submitBenchmarkButton) submitBenchmarkButton.disabled = false;
@@ -250,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentCpuFilter = filterCpuInfoSelect.value;
 
         try {
+            // 使用 Supabase 获取数据
             const { data, error } = await supabase
                 .from('speedometer_results')
                 .select('*')
@@ -285,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFiltersAndRender();
 
         } catch (error) {
-            console.error('加载结果失败:', error);
             if (chartContainer) {
                 chartContainer.style.display = 'block';
                 chartContainer.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">图表数据加载失败: ${error.message || '未知错误'}</p>`;
@@ -298,7 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderBenchmarkChart(dataForChart) {
         const chartContainer = document.getElementById('benchmarkChartContainer');
         if (!echarts || !chartContainer) {
-            console.error('ECharts 未加载或图表容器未找到');
             if (chartContainer) chartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px; color: red;">图表初始化失败。</p>';
             return;
         }
@@ -325,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 axisPointer: { type: 'shadow' },
                 formatter: function (params) {
                     const item = params[0];
+                    // 注意：Supabase 返回的 timestamp 是 ISO 字符串，需要解析为 Date 对象
                     const originalDataItem = dataForChart.find(d => d.device === item.name && d.score === item.value);
                     if (originalDataItem) {
                         const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
@@ -417,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resetFiltersButton) {
         resetFiltersButton.addEventListener('click', () => {
             if(filterBenchmarkTypeSelect) filterBenchmarkTypeSelect.value = '';
-            if(filterBrowserVersionSelect) filterBrowserTypeSelect.value = '';
+            if(filterBrowserVersionSelect) filterBrowserVersionSelect.value = '';
             if(filterCpuInfoSelect) filterCpuInfoSelect.value = '';
             applyFiltersAndRender();
         });

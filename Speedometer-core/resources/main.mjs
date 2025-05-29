@@ -117,6 +117,15 @@ class MainBenchmarkClient {
             this.showResultsDetails();
         else
             this.showResultsSummary();
+        if (scoreResults.isValid) {
+            const finalScore = scoreResults.mean;
+            const finalError = scoreResults.formattedDelta;
+            window.parent.postMessage({
+                type: 'speedometerResult',
+                score: finalScore,
+                error: finalError
+            }, '*');
+        }
     }
 
     handleError(error) {
