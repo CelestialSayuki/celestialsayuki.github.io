@@ -23,9 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingMessage = document.getElementById('loading-message');
     const browserVersionInput = document.getElementById('browserVersion');
     const submitBenchmarkButton = document.getElementById('submitBenchmarkButton');
-    const benchmarkTypeSelectForm = document.getElementById('benchmarkType'); // 上传表单中的类型选择
+    
+    // 自定义选择框相关 (上传表单中的跑分类型)
+    const benchmarkTypeHiddenInput = document.getElementById('benchmarkType'); // 隐藏的 input
+    const customBenchmarkTypeWrapper = document.getElementById('customBenchmarkTypeWrapper');
 
-    // 筛选器元素
+    // 筛选器元素 (仍然是原生 select)
     const filterBenchmarkTypeSelect = document.getElementById('filterBenchmarkType');
     const filterBrowserVersionSelect = document.getElementById('filterBrowserVersion');
     const filterCpuInfoSelect = document.getElementById('filterCpuInfo');
@@ -34,35 +37,105 @@ document.addEventListener('DOMContentLoaded', () => {
     let benchmarkChart = null;
     let allBenchmarkData = [];
 
-    // ****** 新增：检测iOS/iPadOS设备 ******
+    // ****** 自定义选择框初始化和逻辑 ******
+    function initializeCustomSelects() {
+        // 目前只针对上传表单中的 benchmarkType 进行自定义
+        if (!customBenchmarkTypeWrapper) return;
+
+        const wrapper = customBenchmarkTypeWrapper; // 直接使用已获取的wrapper
+        const trigger = wrapper.querySelector('.custom-select-trigger');
+        const hiddenInput = benchmarkTypeHiddenInput; // 直接使用已获取的hidden input
+        const valueDisplay = trigger.querySelector('.custom-select-value');
+        const optionsContainer = wrapper.querySelector('.custom-select-options');
+        const options = optionsContainer.querySelectorAll('.custom-select-option');
+
+        if (!trigger || !hiddenInput || !valueDisplay || !optionsContainer) return;
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (wrapper.classList.contains('disabled')) return;
+            // 如果有其他自定义选择框，可以在这里统一关闭，目前只有一个，所以只toggle自己
+            // closeAllOtherCustomSelects(wrapper);
+            wrapper.classList.toggle('open');
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (wrapper.classList.contains('disabled')) return;
+
+                valueDisplay.textContent = option.textContent;
+                hiddenInput.value = option.dataset.value;
+                
+                const changeEvent = new Event('change', { bubbles: true });
+                hiddenInput.dispatchEvent(changeEvent);
+                
+                options.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+
+                wrapper.classList.remove('open');
+            });
+        });
+
+        // 点击页面其他地方关闭自定义选择框 (如果它是打开的)
+        document.addEventListener('click', () => {
+            if (wrapper.classList.contains('open')) {
+                wrapper.classList.remove('open');
+            }
+        });
+    }
+    initializeCustomSelects(); // 初始化页面上的自定义选择框
+
+    // ****** 检测iOS/iPadOS设备 ******
     function isIOSorIPadOS() {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        // iPadOS 13+ user agent may not contain "iPad" but will look like a Mac.
-        // A more robust check might involve checking for touch capabilities + Mac platform
         if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
             return true;
         }
-        // For iPadOS 13+ that pretends to be a Mac
-        if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) {
+        if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) { // iPadOS 13+
             return true;
         }
         return false;
     }
 
-    // ****** 新增：处理iOS/iPadOS设备上的跑分类型选择 ******
+    // ****** 处理iOS/iPadOS设备上的跑分类型选择 ******
     function handleBenchmarkTypeForAppleMobileDevices() {
         if (isIOSorIPadOS()) {
-            if (benchmarkTypeSelectForm) {
-                benchmarkTypeSelectForm.value = 'Peak'; // 自动选择 Peak
-                benchmarkTypeSelectForm.disabled = true;  // 禁用选择框
+            if (customBenchmarkTypeWrapper && benchmarkTypeHiddenInput) {
+                const peakOptionText = "Peak";
+                const peakOptionValue = "Peak";
+
+                const valueDisplay = customBenchmarkTypeWrapper.querySelector('.custom-select-value');
+                if (valueDisplay) valueDisplay.textContent = peakOptionText;
+                
+                benchmarkTypeHiddenInput.value = peakOptionValue;
+
+                customBenchmarkTypeWrapper.classList.add('disabled');
+                const trigger = customBenchmarkTypeWrapper.querySelector('.custom-select-trigger');
+                if (trigger) trigger.removeAttribute('tabindex');
+
+                const optionsContainer = customBenchmarkTypeWrapper.querySelector('.custom-select-options');
+                if (optionsContainer) {
+                    optionsContainer.querySelectorAll('.custom-select-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                        if (opt.dataset.value === peakOptionValue) {
+                            opt.classList.add('selected');
+                        }
+                    });
+                }
+            }
+        } else {
+            if (customBenchmarkTypeWrapper) {
+                customBenchmarkTypeWrapper.classList.remove('disabled');
+                const trigger = customBenchmarkTypeWrapper.querySelector('.custom-select-trigger');
+                if (trigger) trigger.setAttribute('tabindex', '0');
             }
         }
     }
-    // 调用此函数以应用逻辑
     handleBenchmarkTypeForAppleMobileDevices();
 
 
-    function autofillBrowserInfo() { /* ... (保持不变) ... */
+    function autofillBrowserInfo() {
         if (!browserVersionInput) return;
         let userAgent = navigator.userAgent;
         let browserName = '未知浏览器';
@@ -100,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     autofillBrowserInfo();
 
-    function activateTab(targetId) { /* ... (保持不变) ... */
+    function activateTab(targetId) {
         contentSections.forEach(section => section.classList.remove('active'));
         const targetSection = document.getElementById(targetId);
         if (targetSection) {
@@ -125,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const initiallyActiveSection = document.querySelector('.content-section.active');
     if (initiallyActiveSection) activateTab(initiallyActiveSection.id);
 
-    uploadForm.addEventListener('submit', async (event) => { /* ... (保持不变，benchmarkType 会正确获取到，即使是禁用的select) ... */
+    uploadForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (submitBenchmarkButton) submitBenchmarkButton.disabled = true;
 
@@ -133,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = {
             speedometerScore: parseFloat(formData.get('speedometerScore')) || 0,
             speedometerError: formData.get('speedometerError'),
-            benchmarkType: benchmarkTypeSelectForm.value, // 直接从select元素取值，即使它被禁用
+            benchmarkType: formData.get('benchmarkType'), // FormData 会获取隐藏 input 的值
             browserVersion: formData.get('browserVersion'),
             cpuInfo: formData.get('cpuInfo'),
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -150,7 +223,22 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('结果上传成功！', 'success');
             uploadForm.reset();
             autofillBrowserInfo();
-            handleBenchmarkTypeForAppleMobileDevices(); // 重置表单后再次应用 iOS/iPadOS 逻辑
+            
+            // 表单重置后，自定义选择框需要手动恢复显示和隐藏 input 的值
+            if (customBenchmarkTypeWrapper && benchmarkTypeHiddenInput) {
+                const defaultOption = customBenchmarkTypeWrapper.querySelector('.custom-select-option[data-value="Base"]'); // 或者第一个选项
+                const valueDisplay = customBenchmarkTypeWrapper.querySelector('.custom-select-value');
+                if (defaultOption && valueDisplay) {
+                    valueDisplay.textContent = defaultOption.textContent;
+                    benchmarkTypeHiddenInput.value = defaultOption.dataset.value;
+                    customBenchmarkTypeWrapper.querySelectorAll('.custom-select-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    defaultOption.classList.add('selected');
+                }
+            }
+            handleBenchmarkTypeForAppleMobileDevices(); // 再次应用 iOS/iPadOS 逻辑
+            
             if (document.getElementById('results-section').classList.contains('active')) {
                 loadUploadedResults();
             }
@@ -162,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function populateFilterOptions(data) { /* ... (保持不变) ... */
+    function populateFilterOptions(data) {
         if (!filterBenchmarkTypeSelect || !filterBrowserVersionSelect || !filterCpuInfoSelect) return;
 
         const uniqueBenchmarkTypes = [...new Set(data.map(item => item.benchmarkType).filter(Boolean))].sort();
@@ -194,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    function applyFiltersAndRender() { /* ... (保持不变) ... */
+    function applyFiltersAndRender() {
         if (!allBenchmarkData.length && benchmarkChart) {
             benchmarkChart.dispose();
             benchmarkChart = null;
@@ -248,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderBenchmarkChart(chartDataForEcharts);
     }
 
-    function renderResultsList(dataToRender) { /* ... (保持不变) ... */
+    function renderResultsList(dataToRender) {
         resultsList.innerHTML = '';
         if (dataToRender.length === 0) {
             resultsList.innerHTML = '<li><p>没有符合筛选条件的结果。</p></li>';
@@ -268,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    async function loadUploadedResults() { /* ... (保持不变) ... */
+    async function loadUploadedResults() {
         if (!resultsList || !loadingMessage) return;
         
         const chartContainer = document.getElementById('benchmarkChartContainer');
@@ -328,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderBenchmarkChart(dataForChart) { /* ... (保持不变，但 setOption(..., true)很重要) ... */
+    function renderBenchmarkChart(dataForChart) {
         const chartContainer = document.getElementById('benchmarkChartContainer');
         if (!echarts || !chartContainer) {
             console.error('ECharts 未加载或图表容器未找到');
@@ -396,13 +484,13 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('resize', resizeChart);
     }
     
-    function resizeChart() { /* ... (保持不变) ... */
+    function resizeChart() {
         if (benchmarkChart) {
             benchmarkChart.resize();
         }
     }
 
-    function showMessage(msg, type) { /* ... (保持不变) ... */
+    function showMessage(msg, type) {
         if (!messageDiv) return;
         messageDiv.textContent = msg;
         messageDiv.className = '';

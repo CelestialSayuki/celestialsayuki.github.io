@@ -246,25 +246,20 @@ label {
     margin-bottom: 18px;
 }
 
+/* 文本输入框样式 */
 input[type="number"],
-input[type="text"],
-select { /* 将select也加入通用样式 */
+input[type="text"] {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
     font-size: 1em;
-    background-color: #fff; /* 确保select背景色 */
-    color: #333; /* 确保select文字颜色 */
+    background-color: #fff;
+    color: #333;
+    height: 40px;
+    line-height: normal;
 }
-/* 为被禁用的select提供样式 */
-select:disabled {
-    background-color: #e9ecef; /* 浅灰色背景 */
-    color: #6c757d; /* 较暗的文字颜色 */
-    cursor: not-allowed;
-}
-
 
 /* 跑分类型描述文字样式 */
 .benchmark-type-description {
@@ -278,16 +273,19 @@ select:disabled {
     color: #333;
 }
 
-button[type="submit"] { /* 仅针对type="submit"的按钮，以区别于筛选器中的普通button */
+/* 提交按钮样式 */
+button[type="submit"] {
     background-color: #28a745;
     color: white;
-    padding: 10px 20px;
+    padding: 0 20px; /* 配合 height 调整 padding */
     border: none;
     border-radius: 5px;
     font-size: 1em;
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin-top: 10px;
+    height: 40px;
+    line-height: 40px; /* 使文字垂直居中 */
 }
 
 button[type="submit"]:hover {
@@ -302,6 +300,107 @@ button:disabled {
 button:disabled:hover {
     background-color: #cccccc;
 }
+
+/* ==========================================================================
+   自定义选择框样式 (Custom Select) for #benchmarkType
+   ========================================================================== */
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+    user-select: none;
+}
+
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.custom-select-trigger:hover,
+.custom-select-wrapper.open .custom-select-trigger {
+    border-color: #3498db;
+}
+
+.custom-select-value {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 38px; /* (height - 2*border) 确保文字垂直居中 */
+}
+
+.custom-select-arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #555;
+    transition: transform 0.2s ease;
+}
+
+.custom-select-wrapper.open .custom-select-arrow {
+    transform: rotate(180deg);
+}
+
+.custom-select-options {
+    position: absolute;
+    top: calc(100% + 2px); /* 与触发器略微分开 */
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1001;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.custom-select-wrapper.open .custom-select-options {
+    display: block;
+}
+
+.custom-select-option {
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 1em;
+    color: #333;
+}
+
+.custom-select-option:hover {
+    background-color: #f0f0f0;
+}
+
+.custom-select-option.selected {
+    background-color: #e0e0e0;
+    font-weight: bold;
+}
+
+.custom-select-wrapper.disabled .custom-select-trigger {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    border-color: #ced4da;
+}
+.custom-select-wrapper.disabled .custom-select-trigger:hover {
+    border-color: #ced4da;
+}
+.custom-select-wrapper.disabled .custom-select-arrow {
+    border-top-color: #adb5bd;
+}
+
 
 /* ==========================================================================
    消息提示区域 (#message)
@@ -344,7 +443,7 @@ button:disabled:hover {
     margin-bottom: 30px;
     display: flex;
     flex-wrap: wrap;
-    gap: 15px 20px; /* 行间距15px, 列间距20px */
+    gap: 15px 20px;
     align-items: flex-end;
 }
 
@@ -352,7 +451,7 @@ button:disabled:hover {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    min-width: 180px; /* 调整以适应更多筛选器 */
+    min-width: 180px;
 }
 
 .filter-group label {
@@ -362,18 +461,48 @@ button:disabled:hover {
     font-weight: normal;
 }
 
-/* .filters-container select 已经由全局 select 样式覆盖 */
+/* 筛选器中的原生 select 样式 */
+.filters-container select {
+    width: 100%;
+    padding: 0 10px; /* 左右padding，上下padding由height控制 */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+    background-color: #fff;
+    color: #333;
+    height: 40px;
+    line-height: normal; /* 对于原生select，line-height可能作用有限 */
+    -webkit-appearance: none; /* 移除部分原生外观，可选 */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); /* 简易自定义箭头 */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: .65em auto;
+    padding-right: 30px; /* 为自定义箭头留出空间 */
+}
+/* 原生select禁用样式 */
+.filters-container select:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    background-image: none; /* 禁用时移除箭头 */
+}
+
 
 .filters-container button#resetFiltersButton {
     background-color: #6c757d;
     color: white;
-    padding: 9px 15px; /* 与 select 高度接近 */
+    padding: 0 15px;
     font-size: 0.95em;
-    margin-top: 0; /* 由于 flex-end 对齐，不需要这个 */
-    border: none; /* 确保无边框 */
-    border-radius: 5px; /* 确保圆角 */
-    cursor: pointer; /* 确保鼠标指针 */
-    transition: background-color 0.3s ease; /* 确保过渡效果 */
+    margin-top: 0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 40px;
+    line-height: 40px;
 }
 
 .filters-container button#resetFiltersButton:hover {
@@ -398,7 +527,7 @@ button:disabled:hover {
    结果列表区域 (.results-container, #loading-message, #results-list)
    ========================================================================== */
 .results-container {
-    margin-top: 0; /* 因为上方已有H2 */
+    margin-top: 0;
     background-color: #fdfdfd;
     padding: 20px;
     border-radius: 8px;
@@ -472,7 +601,7 @@ button:disabled:hover {
     .main-content {
         margin: 0;
         padding: 15px;
-        padding-bottom: 70px; /* 为底部导航栏留出空间 */
+        padding-bottom: 70px;
         border-radius: 0;
         box-shadow: none;
     }
@@ -508,14 +637,19 @@ button:disabled:hover {
 
     input[type="number"],
     input[type="text"],
-    select {
-        padding: 12px;
-        font-size: 1em;
+    .custom-select-trigger { /* 自定义选择框触发器也应用移动端高度 */
+        height: 42px;
+        font-size: 1em; /* 确保字体大小一致 */
     }
+    .custom-select-value {
+        line-height: 40px; /* (42px - 2px border) */
+    }
+
 
     button[type="submit"] {
         width: 100%;
-        padding: 14px;
+        padding: 0 15px;
+        height: 42px;
     }
 
     .filters-container {
@@ -526,15 +660,22 @@ button:disabled:hover {
         margin-bottom: 20px;
     }
     .filter-group,
-    .filters-container select, /* 确保筛选器中的select也撑满 */
+    .filters-container select, /* 筛选器中的原生 select */
     .filters-container button#resetFiltersButton {
         width: 100%;
-        min-width: 0; /* 重置桌面端的min-width */
+        min-width: 0;
         margin-top: 0;
+        height: 42px; /* 统一移动端筛选控件高度 */
+    }
+    .filters-container select {
+        padding: 0 10px; /* 保持左右padding */
+        padding-right: 30px; /* 为箭头留空间 */
     }
     .filters-container button#resetFiltersButton {
-        padding: 12px;
+        padding: 0 15px; /* 确保padding正确 */
+        line-height: 42px; /* 确保文字垂直居中 */
     }
+
 
     #benchmarkChartContainer {
         height: 300px;
@@ -557,7 +698,7 @@ button:disabled:hover {
 @media (max-width: 375px) {
     .main-content {
         padding: 10px;
-        padding-bottom: 65px; /* 对应调整 */
+        padding-bottom: 65px;
     }
     h1 {
         font-size: 1.3em;
@@ -570,14 +711,28 @@ button:disabled:hover {
     }
     .manual-input-warning,
     .benchmark-type-description {
-        font-size: 0.8em; /* 调整使与0.85em有区分或统一 */
+        font-size: 0.8em;
     }
+
+    input[type="number"],
+    input[type="text"],
+    .custom-select-trigger, /* 自定义选择框触发器 */
+    .filters-container select, /* 筛选器原生select */
     button[type="submit"],
     .filters-container button#resetFiltersButton {
         font-size: 0.95em;
+        height: 40px;
     }
-    select, /* 全局select在小屏幕上的字体 */
+    .custom-select-value {
+        line-height: 38px; /* (40px - 2px border) */
+    }
+    button[type="submit"],
+    .filters-container button#resetFiltersButton {
+        padding: 0 12px;
+        line-height: 40px;
+    }
     .filters-container select {
-        font-size: 0.95em;
+        padding: 0 10px;
+        padding-right: 30px;
     }
 }
