@@ -82,19 +82,19 @@ document.addEventListener('DOMContentLoaded', () => {
             browserName = 'Edge';
             const edgeVersion = userAgent.match(/Edg\/(\d+\.\d+\.\d+\.\d+)/);
             if (edgeVersion && edgeVersion[1]) browserVersion = edgeVersion[1];
-        } else if (userAgent.includes('Firefox')) {
-            browserName = 'Firefox';
-            const firefoxVersion = userAgent.match(/Firefox\/(\d+\.\d+)/);
-            if (firefoxVersion && firefoxVersion[1]) browserVersion = firefoxVersion[1];
         } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) {
             browserName = 'Opera';
             const operaVersion = userAgent.match(/(OPR|Opera)\/(\d+\.\d+\.\d+\.\d+)/);
             if (operaVersion && operaVersion[2]) browserVersion = operaVersion[2];
-        } else if (userAgent.includes('Chrome') && !userAgent.includes('Safari') && !userAgent.includes('Edg')) {
+        } else if (userAgent.includes('Chrome')) {
             browserName = 'Chrome';
             const chromeVersion = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
             if (chromeVersion && chromeVersion[1]) browserVersion = chromeVersion[1];
-        } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
+        } else if (userAgent.includes('Firefox')) {
+            browserName = 'Firefox';
+            const firefoxVersion = userAgent.match(/Firefox\/(\d+\.\d+)/);
+            if (firefoxVersion && firefoxVersion[1]) browserVersion = firefoxVersion[1];
+        } else if (userAgent.includes('Safari')) {
             browserName = 'Safari';
             let safariVersionMatch = userAgent.match(/Version\/(\d+(\.\d+){1,2})/);
             if (safariVersionMatch && safariVersionMatch[1]) {
@@ -106,9 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        browserVersionInput.value = `${browserName} ${browserVersion}`;
+        if (browserName === '未知浏览器') {
+            browserVersionInput.value = userAgent;
+        } else {
+            browserVersionInput.value = `${browserName} ${browserVersion}`;
+        }
     }
-    autofillBrowserInfo();
 
     function activateTab(targetId) {
         contentSections.forEach(section => section.classList.remove('active'));
