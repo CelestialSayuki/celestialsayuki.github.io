@@ -2,8 +2,7 @@
    基础和全局样式
    ========================================================================== */
 body {
-    font-family: Arial, sans-serif; /* 您 style.css 中的字体 */
-    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 您 index.html 中的字体，可按需选择 */
+    font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
     display: flex; /* 桌面端布局：侧边栏 + 主内容 */
@@ -28,23 +27,20 @@ a:hover {
    ========================================================================== */
 .sidebar {
     width: 250px;
-    background-color: #2c3e50; /* 深蓝色 */
-    color: white; /* 您 style.css 中的颜色 */
-    /* color: #ecf0f1; /* 您 index.html 中的颜色 */
+    background-color: #2c3e50;
+    color: white;
     padding: 20px 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     display: flex; /* 默认在桌面端显示 */
     flex-direction: column;
 }
 
-.sidebar .logo { /* 对应桌面端侧边栏内的 Logo */
-    font-size: 24px; /* 您 style.css 中的字号 */
-    /* font-size: 1.8em; /* 您 index.html 中的字号 */
+.sidebar .logo {
+    font-size: 1.8em; /* 根据 index.html <style> 统一 */
     font-weight: bold;
     text-align: center;
     margin-bottom: 30px;
-    color: #4CAF50; /* 您 style.css 中的绿色 */
-    /* color: #3498db; /* 您 index.html 中的蓝色 */
+    color: #3498db; /* 根据 index.html <style> 统一 */
 }
 
 .sidebar .menu {
@@ -54,26 +50,22 @@ a:hover {
 }
 
 .sidebar .menu-item {
-    padding: 15px 25px; /* 您 style.css 中的 padding */
-    /* padding: 15px 20px; /* 您 index.html 中的 padding */
+    padding: 15px 20px; /* 根据 index.html <style> 统一 */
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     border-left: 5px solid transparent;
-    font-size: 1.1em; /* 您 index.html 中的字号，若 style.css 无定义则采用此 */
+    font-size: 1.1em;
 }
 
 .sidebar .menu-item:hover {
     background-color: #34495e;
-    /* color: #ffffff; /* index.html 中定义的悬停文字颜色 */
+    color: #ffffff;
 }
 
 .sidebar .menu-item.active {
-    background-color: #1a242f; /* 您 style.css 中的激活背景色 */
-    /* background-color: #3498db; /* 您 index.html 中的激活背景色 */
-    border-left-color: #4CAF50; /* 您 style.css 中的激活边框色 */
-    /* border-left-color: #2980b9; /* 您 index.html 中的激活边框色 */
-    color: #4CAF50; /* 您 style.css 中的激活文字颜色 */
-    /* color: #ffffff; /* 您 index.html 中的激活文字颜色 */
+    background-color: #3498db; /* 根据 index.html <style> 统一 */
+    border-left-color: #2980b9; /* 根据 index.html <style> 统一 */
+    color: #ffffff; /* 根据 index.html <style> 统一 */
     font-weight: bold;
 }
 
@@ -84,46 +76,45 @@ a:hover {
     display: none; /* 桌面端默认隐藏 */
     align-items: center;
     justify-content: center;
-    background-color: #2c3e50; /* 与侧边栏颜色协调 */
+    background-color: #2c3e50;
     color: #ecf0f1;
     padding: 15px;
     width: 100%;
     box-sizing: border-box;
-    z-index: 1000; /* 确保在顶层 */
+    z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    /* 如果希望移动端顶部栏固定，请在 mobile media query 中添加 position: fixed; top: 0; left: 0; */
+    /* position: fixed; top: 0; left: 0; /* 如果需要在移动端固定 */
 }
 
-.top-app-bar .logo-mobile { /* 对应移动端顶部栏的 Logo 文字 */
+.top-app-bar .logo-mobile {
     font-size: 1.5em;
     font-weight: bold;
-    color: #3498db; /* 使用 index.html 中 sidebar logo 的颜色，或 #4CAF50 */
+    color: #3498db; /* 与桌面端 logo 颜色一致 */
     margin: 0;
 }
-
 
 /* ==========================================================================
    移动端底部导航栏 (.bottom-nav) - 默认隐藏
    ========================================================================== */
 .bottom-nav {
     display: none; /* 桌面端默认隐藏 */
-    position: fixed; /* 固定在底部 */
+    position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     background-color: #ffffff;
-    border-top: 1px solid #e0e0e0; /* 比 #ddd 稍浅，更精致 */
+    border-top: 1px solid #e0e0e0;
     box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
-    z-index: 1000; /* 确保在顶层 */
+    z-index: 1000;
 }
 
 .bottom-nav .nav-item {
     flex: 1;
-    padding: 10px 5px; /* 上下10px, 左右5px */
+    padding: 10px 5px;
     text-align: center;
     cursor: pointer;
-    color: #7f8c8d; /* 未选中项的颜色 */
-    font-size: 0.9em; /* 标签文字大小 */
+    color: #7f8c8d;
+    font-size: 0.9em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -131,17 +122,10 @@ a:hover {
     transition: color 0.2s ease;
 }
 
-/* 如果使用图标，可以为图标设置样式 */
-/* .bottom-nav .nav-item i {
-    font-size: 1.5em; 桌面图标大小
-    margin-bottom: 3px;
-} */
-
 .bottom-nav .nav-item.active {
-    color: #3498db; /* 选中项的颜色，与 index.html 中 sidebar.active 协调 */
-    /* color: #4CAF50; 或者使用 style.css 中的绿色 */
+    color: #3498db; /* 与激活的菜单项颜色一致 */
 }
-.bottom-nav .nav-item.active span { /* 使选中项的文字加粗 */
+.bottom-nav .nav-item.active span {
     font-weight: bold;
 }
 
@@ -150,14 +134,12 @@ a:hover {
    ========================================================================== */
 .main-content {
     flex-grow: 1;
-    padding: 20px 40px; /* 桌面端 padding (来自 style.css) */
-    /* padding: 30px; /* 来自 index.html - 按需调整 */
+    padding: 30px; /* 根据 index.html <style> 统一 */
     background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); /* 来自 style.css */
-    /* box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* 来自 index.html */
-    margin: 20px; /* 桌面端 margin (来自 style.css) */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* 根据 index.html <style> 统一 */
+    margin: 20px; /* 桌面端外边距 */
     border-radius: 8px;
-    overflow-y: auto; /* 允许内容区自身滚动 */
+    overflow-y: auto;
 }
 
 /* ==========================================================================
@@ -175,22 +157,21 @@ a:hover {
    标题和文本样式 (h1, h2, p, ol, label)
    ========================================================================== */
 h1 {
-    color: #2c3e50; /* 来自 index.html (更具体) */
-    /* color: #333; /* 来自 style.css */
-    text-align: center; /* 来自 style.css */
-    border-bottom: 2px solid #3498db; /* 来自 index.html */
+    color: #2c3e50;
+    text-align: left; /* 通常页面主标题左对齐更常见 */
+    border-bottom: 2px solid #3498db;
     padding-bottom: 10px;
-    margin-bottom: 25px; /* 来自 index.html */
-    /* margin-bottom: 20px; /* 来自 style.css */
+    margin-top: 0; /* 内容区域的第一个H1通常不需要上外边距 */
+    margin-bottom: 25px;
+    font-size: 1.8em; /* 调整H1大小 */
 }
 
 h2 {
-    color: #34495e; /* 来自 index.html */
-    /* color: #333; /* 来自 style.css */
-    text-align: center; /* 来自 style.css */
-    margin-top: 30px; /* 来自 index.html */
-    margin-bottom: 15px; /* 来自 index.html */
-    /* margin-bottom: 20px; /* 来自 style.css */
+    color: #34495e;
+    text-align: left; /* 子标题也左对齐 */
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.4em; /* 调整H2大小 */
 }
 
 ol {
@@ -202,9 +183,9 @@ ol li {
     margin-bottom: 10px;
 }
 
-label { /* 合并自 index.html 和 style.css */
+label {
     display: block;
-    margin-bottom: 8px; /* 来自 index.html */
+    margin-bottom: 8px;
     font-weight: bold;
     color: #555;
 }
@@ -236,16 +217,16 @@ label { /* 合并自 index.html 和 style.css */
     margin-bottom: 20px;
     color: #664d03;
     border-radius: 5px;
-    font-size: 0.95em; /* 稍作调整 */
+    font-size: 0.95em;
 }
 
 .manual-input-warning p {
-    margin: 0 0 8px 0; /* 段落下边距 */
+    margin: 0 0 8px 0;
 }
 .manual-input-warning p:last-child {
     margin-bottom: 0;
 }
-.manual-input-warning p strong { /* 确保 strong 标签加粗 */
+.manual-input-warning p strong {
     font-weight: bold;
 }
 
@@ -253,56 +234,65 @@ label { /* 合并自 index.html 和 style.css */
    表单区域样式 (.form-section, .form-group, input, button)
    ========================================================================== */
 .form-section {
-    margin-top: 30px; /* 来自 style.css */
-    border-top: 1px solid #eee; /* 来自 style.css */
-    padding-top: 25px; /* 来自 style.css */
-    background-color: #fdfdfd; /* 来自 index.html */
-    padding: 25px; /* 来自 index.html (覆盖 padding-top) */
-    border-radius: 8px; /* 来自 index.html */
-    border: 1px solid #eee; /* 来自 index.html (覆盖 border-top) */
+    background-color: #fdfdfd;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    margin-top: 20px; /* 统一与上一元素的间距 */
 }
 
 .form-group {
-    margin-bottom: 18px; /* 来自 index.html (比 style.css 的 15px 稍大) */
+    margin-bottom: 18px;
 }
 
-input[type="number"],
-input[type="text"] { /* 合并自 index.html 和 style.css */
-    width: 100%; /* 来自 style.css (calc(100% - 22px) 已被 100% + box-sizing: border-box 替代) */
-    padding: 10px; /* 来自 style.css */
-    border: 1px solid #ccc; /* 来自 index.html */
-    border-radius: 5px; /* 来自 index.html (覆盖 style.css 的 4px) */
+input[type="number"], /* 虽然目前没有number类型，但可以保留 */
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     box-sizing: border-box;
-    font-size: 1em; /* 来自 index.html */
+    font-size: 1em;
 }
 
-button[type="submit"] { /* 合并自 index.html 和 style.css */
-    background-color: #28a745;
+button[type="submit"],
+.filters-container button { /* 统一按钮样式 */
+    background-color: #28a745; /* 主操作按钮颜色 */
     color: white;
-    padding: 12px 25px; /* 来自 index.html (更具体) */
+    padding: 10px 20px; /* 调整padding */
     border: none;
     border-radius: 5px;
-    font-size: 1.1em; /* 来自 index.html (覆盖 style.css 的 16px) */
+    font-size: 1em; /* 调整字体大小 */
     cursor: pointer;
-    transition: background-color 0.3s ease; /* 来自 index.html (覆盖 style.css 的 0.2s) */
-    margin-top: 10px; /* 来自 index.html */
-    width: auto; /* 桌面端按钮宽度自适应内容，除非特别指定 */
-    /* width: 100%; /* style.css 中为 100%，若桌面端也希望如此则取消注释 */
+    transition: background-color 0.3s ease;
+    margin-top: 10px; /* 提交按钮的上边距 */
 }
 
-button[type="submit"]:hover {
+button[type="submit"]:hover,
+.filters-container button:hover {
     background-color: #218838;
 }
+
+/* 按钮禁用状态 */
+button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+button:disabled:hover {
+    background-color: #cccccc; /* 禁用时悬停不变色 */
+}
+
 
 /* ==========================================================================
    消息提示区域 (#message)
    ========================================================================== */
 #message {
     margin-top: 20px;
-    padding: 10px 15px; /* 来自 index.html */
-    border-radius: 5px; /* 来自 index.html (覆盖 style.css 的 4px) */
-    font-weight: bold; /* 来自 index.html */
-    text-align: center; /* 来自 style.css */
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
     display: none;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
@@ -319,24 +309,83 @@ button[type="submit"]:hover {
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
-/* #message.hidden 已被全局 .hidden 取代，或由JS直接控制 display 和 opacity */
-#message:not(.hidden) { /* JS 会移除 hidden 并控制 opacity */
-    display: block; /* 或者其他合适的 display 类型 */
+
+#message:not(.hidden) {
+    display: block;
     opacity: 1;
 }
 
+/* ==========================================================================
+   筛选器区域样式 (.filters-container)
+   ========================================================================== */
+.filters-container {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 30px; /* 与下方图表容器的间距 */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* 让筛选组在空间足够时扩展 */
+    min-width: 200px;
+}
+
+.filter-group label {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #555;
+    font-weight: normal; /* 筛选器标签不用加粗 */
+}
+
+.filters-container select {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    width: 100%; /* 在 flex-group 内部占满 */
+    box-sizing: border-box;
+}
+
+.filters-container button#resetFiltersButton { /* 特定于重置按钮的颜色 */
+    background-color: #6c757d; /* 灰色系 */
+    padding: 9px 15px; /* 与 select 高度接近 */
+    font-size: 0.95em;
+    margin-top: 0; /* 因为底部对齐，不需要这个 */
+}
+
+.filters-container button#resetFiltersButton:hover {
+    background-color: #5a6268;
+}
+
+/* ==========================================================================
+   ECharts 图表容器 (#benchmarkChartContainer)
+   ========================================================================== */
+#benchmarkChartContainer {
+    width: 100%;
+    height: 400px; /* HTML中已定义，此处可省略或覆盖 */
+    margin-bottom: 30px; /* HTML中已定义 */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 20px; /* 增加内边距 */
+    box-sizing: border-box;
+}
 
 /* ==========================================================================
    结果列表区域 (.results-container, #loading-message, #results-list)
    ========================================================================== */
-.results-container {
-    margin-top: 20px; /* 来自 index.html */
-    background-color: #fdfdfd; /* 来自 index.html */
-    padding: 25px; /* 来自 index.html */
-    border-radius: 8px; /* 来自 index.html */
-    border: 1px solid #eee; /* 来自 index.html (覆盖 style.css 的 results-container 边框) */
-    /* max-height: 600px; /* style.css 中的设定，如果桌面端需要限制高度则保留 */
-    /* overflow-y: auto; /* style.css 中的设定 */
+.results-container { /* 这个是列表的外层容器 */
+    margin-top: 0; /* 因为上面已经有了H2标题 */
+    background-color: #fdfdfd;
+    padding: 20px; /* 内边距 */
+    border-radius: 8px;
+    border: 1px solid #eee;
 }
 
 #loading-message {
@@ -344,7 +393,7 @@ button[type="submit"]:hover {
     padding: 20px;
     color: #555;
     font-style: italic;
-    display: none; /* 默认隐藏，由JS控制 */
+    display: none;
 }
 
 #results-list {
@@ -352,84 +401,81 @@ button[type="submit"]:hover {
     padding: 0;
 }
 
-#results-list li { /* 卡片式设计，合并自 index.html 和 style.css */
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
+#results-list li {
+    background-color: #fff; /* 卡片背景色 */
+    border: 1px solid #e0e0e0; /* 卡片边框颜色 */
     padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px; /* 来自 index.html (覆盖 style.css 的 5px) */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 来自 index.html (更具体) */
+    margin-bottom: 12px;
+    border-radius: 6px; /* 卡片圆角 */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+#results-list li:last-child {
+    margin-bottom: 0;
 }
 
-#results-list li strong { /* 分数等重要信息 */
-    color: #333; /* 来自 style.css，或 #3498db / #4CAF50 */
-    display: block; /* 使其独占一行，方便后续内容排列 */
-    margin-bottom: 5px;
-    font-size: 1.1em; /* 略微突出 */
+#results-list li strong {
+    color: #3498db; /* 分数用主题色突出 */
+    display: inline; /* 让分数和误差在同一行 */
+    margin-right: 5px;
+    font-size: 1.05em;
 }
 
-#results-list li p { /* 其他信息，如误差、CPU等 */
-    font-size: 0.9em; /* 来自 index.html */
-    color: #666;
-    margin: 5px 0; /* 来自 style.css */
-    line-height: 1.5; /* 增加行高易读性 */
+#results-list li p {
+    font-size: 0.9em;
+    color: #555; /* 辅助文字颜色 */
+    margin: 8px 0 0 0; /* 段落上边距，无下边距 */
+    line-height: 1.5;
 }
-#results-list li p.upload-time { /* 如果JS为上传时间添加了这个类 */
+#results-list li p.upload-time {
     font-size: 0.8em;
-    color: #888;
-    margin-top: 8px;
+    color: #777; /* 时间文字颜色更浅 */
+    margin-top: 10px;
 }
-
 
 /* ==========================================================================
    移动端响应式样式 ( <= 768px )
    ========================================================================== */
 @media (max-width: 768px) {
     body {
-        flex-direction: column; /* 页面整体垂直排列 */
+        flex-direction: column;
     }
 
     .sidebar {
-        display: none !important; /* 在移动端彻底隐藏侧边栏 */
+        display: none !important;
     }
 
     .top-app-bar {
-        display: flex; /* 显示移动端顶部栏 */
-        /* position: fixed; */ /* 如果希望固定，取消注释并调整 main-content padding-top */
-        /* top: 0; */
-        /* left: 0; */
+        display: flex;
+        /* position: fixed; top: 0; left: 0; */ /* 如果固定，需要调整 main-content padding-top */
     }
 
     .bottom-nav {
-        display: flex; /* 显示移动端底部导航 */
+        display: flex;
     }
 
     .main-content {
         margin: 0;
-        padding: 15px; /* 移动端通用内边距 */
-        /* 如果 top-app-bar 是 fixed, 且高度约50-60px */
-        /* padding-top: 70px; */
-        padding-bottom: 70px; /* 为底部导航栏(约60px高)留出空间 + 一些间距 */
+        padding: 15px;
+        /* padding-top: 70px; */ /* 如果顶部栏固定且高度约55px，加15px间距 */
+        padding-bottom: 70px; /* 为底部导航栏(约50-60px高)留出空间 */
         border-radius: 0;
         box-shadow: none;
-        height: auto; /* 高度自适应，但要考虑视口高度和固定导航 */
-        /* 如果顶部和底部导航都固定，可能需要 calc(100vh - topBarHeight - bottomBarHeight) */
     }
 
     h1 {
-        font-size: 1.6em;
-        margin-bottom: 20px;
+        font-size: 1.5em; /* 移动端H1 */
         padding-bottom: 8px;
+        margin-bottom: 20px;
     }
 
     h2 {
-        font-size: 1.3em;
-        margin-top: 20px;
-        margin-bottom: 10px;
+        font-size: 1.25em; /* 移动端H2 */
+        margin-top: 25px;
+        margin-bottom: 12px;
     }
 
     .speedometer-embed-container {
-        height: 300px; /* 移动端 iframe 高度 */
+        height: 300px;
         margin-bottom: 15px;
     }
 
@@ -439,54 +485,80 @@ button[type="submit"]:hover {
     }
 
     .form-section {
-        padding: 20px 15px; /* 移动端表单区域内边距 */
+        padding: 20px 15px;
     }
 
     input[type="number"],
     input[type="text"] {
-        padding: 12px; /* 增大点击区域 */
+        padding: 12px;
         font-size: 1em;
     }
 
-    button[type="submit"] {
-        width: 100%; /* 移动端按钮宽度撑满 */
-        padding: 15px;
-        font-size: 1.1em;
+    button[type="submit"] { /* 提交按钮在移动端撑满 */
+        width: 100%;
+        padding: 14px; /* 增大点击区域 */
+    }
+
+    .filters-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+        padding: 15px 10px; /* 移动端筛选器内边距 */
+        margin-bottom: 20px;
+    }
+    .filter-group,
+    .filters-container select,
+    .filters-container button#resetFiltersButton { /* 重置按钮也撑满 */
+        width: 100%;
+        min-width: 0;
+        margin-top: 0; /* 移除桌面端为对齐设置的 margin-top */
+    }
+    .filters-container button#resetFiltersButton {
+        padding: 12px; /* 移动端按钮padding */
+    }
+
+
+    #benchmarkChartContainer {
+        height: 300px; /* 移动端图表高度 */
+        padding: 10px; /* 移动端图表内边距 */
+        margin-bottom: 20px;
     }
 
     .results-container {
-        padding: 15px; /* 移动端结果容器内边距 */
+        padding: 15px 10px; /* 移动端结果列表容器内边距 */
     }
 
     #results-list li {
-        padding: 12px; /* 移动端卡片内边距 */
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    #results-list li strong {
-        font-size: 1.15em; /* 在移动端更突出分数 */
+        padding: 12px;
     }
 }
 
-/* 针对非常小的屏幕的额外微调 (可选) */
-@media (max-width: 360px) {
+/* ==========================================================================
+   更小屏幕的微调 ( <= 375px ) - 可选
+   ========================================================================== */
+@media (max-width: 375px) {
     .main-content {
         padding: 10px;
-        /* padding-top: 65px; */ /* 对应调整（如果顶部栏固定） */
-        padding-bottom: 65px; /* 对应调整 */
+        /* padding-top: 65px; */
+        padding-bottom: 65px;
     }
     h1 {
-        font-size: 1.4em;
+        font-size: 1.3em;
     }
     h2 {
-        font-size: 1.2em;
+        font-size: 1.15em;
     }
     .bottom-nav .nav-item {
-        font-size: 0.8em; /* 底部导航文字再小一点 */
+        font-size: 0.8em;
     }
-    /* .bottom-nav .nav-item i {
-        font-size: 1.4em;
-    } */
     .manual-input-warning {
         font-size: 0.85em;
+    }
+    button[type="submit"],
+    .filters-container button#resetFiltersButton {
+        font-size: 0.95em; /* 按钮字体稍小 */
+    }
+    .filters-container select {
+        font-size: 0.95em;
     }
 }
