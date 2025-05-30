@@ -322,6 +322,9 @@ button:disabled:hover {
 
 #benchmarkChartContainer {
     width: 100%;
+    height: auto;
+    min-height: 300px;
+    margin-bottom: 30px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
