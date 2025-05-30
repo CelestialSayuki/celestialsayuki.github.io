@@ -351,15 +351,15 @@ document.addEventListener('DOMContentLoaded', () => {
         benchmarkChartContainer.innerHTML = '';
         benchmarkChartContainer.style.display = 'block';
 
-        if (benchmarkChart) {
-            benchmarkChart.dispose();
-        }
-        benchmarkChart = echarts.init(benchmarkChartContainer);
-
         const itemHeight = 35;
         const minChartHeight = 300;
         const calculatedHeight = Math.max(minChartHeight, dataForChart.length * itemHeight + 100);
-        benchmarkChartContainer.style.height = `${calculatedHeight}px`;
+        benchmarkChartContainer.style.height = `${calculatedHeight}px`; // 将高度设置移到初始化前
+
+        if (benchmarkChart) {
+            benchmarkChart.dispose();
+        }
+        benchmarkChart = echarts.init(benchmarkChartContainer); // ECharts 初始化
 
         if (dataForChart.length === 0) {
             benchmarkChartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
@@ -427,6 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }]
         };
         benchmarkChart.setOption(chartOption, true);
+        benchmarkChart.resize(); // 在设置选项后立即调用 resize
     }
 
     function resizeChart() {
