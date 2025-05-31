@@ -83,7 +83,17 @@ document.addEventListener('DOMContentLoaded', () => {
         let browserName = '未知浏览器';
         let browserVersion = '未知版本';
 
-        if (userAgent.includes('Edg') || userAgent.includes('EdgA')) {
+        if (userAgent.includes('HuaweiBrowser')) {
+            browserName = 'HuaweiBrowser';
+            const huaweiBrowserVersion = userAgent.match(/HuaweiBrowser\/(\d+\.\d+\.\d+\.\d+)/);
+            if (huaweiBrowserVersion && huaweiBrowserVersion[1]) {
+                browserVersion = huaweiBrowserVersion[1];
+            }
+            const chromeVersionMatch = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
+            if (chromeVersionMatch && chromeVersionMatch[1]) {
+                browserVersion += ` (Chrome ${chromeVersionMatch[1]})`;
+            }
+        } else if (userAgent.includes('Edg') || userAgent.includes('EdgA')) {
             browserName = 'Edge';
             const edgeVersion = userAgent.match(/Edg(?:A)?\/(\d+\.\d+\.\d+\.\d+)/);
             if (edgeVersion && edgeVersion[1]) browserVersion = edgeVersion[1];
