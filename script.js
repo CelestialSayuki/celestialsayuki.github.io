@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chartDiv.style.minHeight = '300px';
         container.appendChild(chartDiv);
 
-        const itemHeight = 25;
+        const itemHeight = 15;
         const minChartHeight = 300;
         const calculatedHeight = Math.max(minChartHeight, data.length * itemHeight + 100);
         chartDiv.style.height = `${calculatedHeight}px`;
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title: {
                 text: `${titlePrefix} 类型设备跑分对比 (Speedometer 3.1)`,
                 left: 'center',
-                top: '5%'
+                top: '12px'
             },
             tooltip: {
                 trigger: 'axis',
