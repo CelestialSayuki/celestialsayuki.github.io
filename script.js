@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
         benchmarkChartContainer.innerHTML = '';
         benchmarkChartContainer.style.display = 'block';
 
-        const itemHeight = 35;
+        const itemHeight = 25;
         const minChartHeight = 300;
         const calculatedHeight = Math.max(minChartHeight, dataForChart.length * itemHeight + 100);
         benchmarkChartContainer.style.height = `${calculatedHeight}px`; // 将高度设置移到初始化前
