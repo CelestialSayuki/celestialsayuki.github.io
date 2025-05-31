@@ -253,9 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyFiltersAndRender() {
         if (!allBenchmarkData.length) {
-            clearAndShowNoData(benchmarkChartContainerBase, benchmarkChartBase, 'Base');
-            clearAndShowNoData(benchmarkChartContainerWebview, benchmarkChartWebview, 'Webview');
-            clearAndShowNoData(benchmarkChartContainerPeak, benchmarkChartPeak, 'Peak');
+            clearAndShowNoData(benchmarkChartContainerBase, benchmarkChartBase, 'Peak');
+            clearAndShowNoData(benchmarkChartContainerWebview, benchmarkChartWebview, 'Base');
+            clearAndShowNoData(benchmarkChartContainerPeak, benchmarkChartPeak, 'Webview');
             return;
         }
 
@@ -275,15 +275,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataForWebview = filteredData.filter(item => item.benchmarkType === 'Webview');
         const dataForPeak = filteredData.filter(item => item.benchmarkType === 'Peak');
 
-        renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, dataForBase, 'Base');
-        renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, dataForWebview, 'Webview');
-        renderBenchmarkChart(benchmarkChartContainerPeak, benchmarkChartPeak, dataForPeak, 'Peak');
+        benchmarkChartPeak = renderBenchmarkChart(benchmarkChartContainerPeak, benchmarkChartPeak, dataForPeak, 'Peak');
+        benchmarkChartBase = renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, dataForBase, 'Base');
+        benchmarkChartWebview = renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, dataForWebview, 'Webview');
     }
 
     async function loadUploadedResults() {
+        clearAndShowLoading(benchmarkChartContainerPeak, 'Peak');
         clearAndShowLoading(benchmarkChartContainerBase, 'Base');
         clearAndShowLoading(benchmarkChartContainerWebview, 'Webview');
-        clearAndShowLoading(benchmarkChartContainerPeak, 'Peak');
 
         const currentBrowserFilter = filterBrowserVersionSelect.value;
         const currentCpuFilter = filterCpuInfoSelect.value;
@@ -319,9 +319,9 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFiltersAndRender();
 
         } catch (error) {
+            showErrorInChartContainer(benchmarkChartContainerPeak, `Peak 类型图表数据加载失败: ${error.message || '未知错误'}`);
             showErrorInChartContainer(benchmarkChartContainerBase, `Base 类型图表数据加载失败: ${error.message || '未知错误'}`);
             showErrorInChartContainer(benchmarkChartContainerWebview, `Webview 类型图表数据加载失败: ${error.message || '未知错误'}`);
-            showErrorInChartContainer(benchmarkChartContainerPeak, `Peak 类型图表数据加载失败: ${error.message || '未知错误'}`);
             allBenchmarkData = [];
             populateFilterOptions([]);
         }
