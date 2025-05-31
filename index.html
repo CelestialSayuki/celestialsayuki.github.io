@@ -71,12 +71,6 @@
 
             <div class="filters-container">
                 <div class="filter-group">
-                    <label for="filterBenchmarkType">筛选跑分类型:</label>
-                    <select id="filterBenchmarkType">
-                        <option value="">所有类型</option>
-                    </select>
-                </div>
-                <div class="filter-group">
                     <label for="filterBrowserVersion">筛选 Webview/系统版本:</label>
                     <select id="filterBrowserVersion">
                         <option value="">所有版本</option>
@@ -92,7 +86,15 @@
                 <button id="refreshResultsButton">刷新</button>
             </div>
 
-            <div id="benchmarkChartContainer"></div>
+            <div id="benchmarkChartContainerBase" class="benchmark-chart-individual-container">
+                <h2>Base 类型跑分</h2>
+            </div>
+            <div id="benchmarkChartContainerWebview" class="benchmark-chart-individual-container">
+                <h2>Webview 类型跑分</h2>
+            </div>
+            <div id="benchmarkChartContainerPeak" class="benchmark-chart-individual-container">
+                <h2>Peak 类型跑分</h2>
+            </div>
         </div>
     </div>
 

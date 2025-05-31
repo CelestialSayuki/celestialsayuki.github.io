@@ -20,14 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const speedometerErrorInput = document.getElementById('speedometerError');
     const cpuInfoInput = document.getElementById('cpuInfo');
 
-    const filterBenchmarkTypeSelect = document.getElementById('filterBenchmarkType');
     const filterBrowserVersionSelect = document.getElementById('filterBrowserVersion');
     const filterCpuInfoSelect = document.getElementById('filterCpuInfo');
     const resetFiltersButton = document.getElementById('resetFiltersButton');
     const refreshResultsButton = document.getElementById('refreshResultsButton');
-    const benchmarkChartContainer = document.getElementById('benchmarkChartContainer');
 
-    let benchmarkChart = null;
+    const benchmarkChartContainerBase = document.getElementById('benchmarkChartContainerBase');
+    const benchmarkChartContainerWebview = document.getElementById('benchmarkChartContainerWebview');
+    const benchmarkChartContainerPeak = document.getElementById('benchmarkChartContainerPeak');
+
+    let benchmarkChartBase = null;
+    let benchmarkChartWebview = null;
+    let benchmarkChartPeak = null;
     let allBenchmarkData = [];
 
     window.addEventListener('message', (event) => {
@@ -158,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (targetId === 'results-section') {
                 loadUploadedResults();
                 setTimeout(() => {
-                    resizeChart();
+                    resizeCharts();
                 }, 100);
             }
         }
@@ -172,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (initiallyActiveSection.id === 'results-section') {
             loadUploadedResults();
             setTimeout(() => {
-                resizeChart();
+                resizeCharts();
             }, 100);
         } else {
             activateTab(initiallyActiveSection.id);
@@ -214,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('results-section').classList.contains('active')) {
                 loadUploadedResults();
                 setTimeout(() => {
-                    resizeChart();
+                    resizeCharts();
                 }, 100);
             }
         } catch (error) {
@@ -225,19 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function populateFilterOptions(data) {
-        if (!filterBenchmarkTypeSelect || !filterBrowserVersionSelect || !filterCpuInfoSelect) return;
+        if (!filterBrowserVersionSelect || !filterCpuInfoSelect) return;
 
-        const uniqueBenchmarkTypes = [...new Set(data.map(item => item.benchmarkType).filter(Boolean))].sort();
         const uniqueBrowserVersions = [...new Set(data.map(item => item.browserVersion).filter(Boolean))].sort();
         const uniqueCpuInfos = [...new Set(data.map(item => item.cpuInfo).filter(Boolean))].sort();
-
-        filterBenchmarkTypeSelect.innerHTML = '<option value="">所有类型</option>';
-        uniqueBenchmarkTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type;
-            option.textContent = type;
-            filterBenchmarkTypeSelect.appendChild(option);
-        });
 
         filterBrowserVersionSelect.innerHTML = '<option value="">所有版本</option>';
         uniqueBrowserVersions.forEach(version => {
@@ -258,25 +253,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyFiltersAndRender() {
         if (!allBenchmarkData.length) {
-            if (benchmarkChart) {
-                benchmarkChart.dispose();
-                benchmarkChart = null;
-            }
-            if (benchmarkChartContainer) {
-                benchmarkChartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>';
-            }
+            clearAndShowNoData(benchmarkChartContainerBase, benchmarkChartBase, 'Base');
+            clearAndShowNoData(benchmarkChartContainerWebview, benchmarkChartWebview, 'Webview');
+            clearAndShowNoData(benchmarkChartContainerPeak, benchmarkChartPeak, 'Peak');
             return;
         }
 
-        const selectedBenchmarkType = filterBenchmarkTypeSelect.value;
         const selectedBrowserVersion = filterBrowserVersionSelect.value;
         const selectedCpuInfo = filterCpuInfoSelect.value;
 
         let filteredData = allBenchmarkData;
 
-        if (selectedBenchmarkType) {
-            filteredData = filteredData.filter(item => item.benchmarkType === selectedBenchmarkType);
-        }
         if (selectedBrowserVersion) {
             filteredData = filteredData.filter(item => item.browserVersion === selectedBrowserVersion);
         }
@@ -284,37 +271,20 @@ document.addEventListener('DOMContentLoaded', () => {
             filteredData = filteredData.filter(item => item.cpuInfo === selectedCpuInfo);
         }
 
-        const chartDataProcessed = {};
-        filteredData.forEach(item => {
-            const key = item.cpuInfo;
-            if (!chartDataProcessed[key] || item.speedometerScore > chartDataProcessed[key].score) {
-                chartDataProcessed[key] = {
-                    device: key,
-                    score: item.speedometerScore,
-                    benchmarkType: item.benchmarkType,
-                    browserVersion: item.browserVersion,
-                    speedometerError: item.speedometerError,
-                    timestamp: item.timestamp
-                };
-            }
-        });
+        const dataForBase = filteredData.filter(item => item.benchmarkType === 'Base');
+        const dataForWebview = filteredData.filter(item => item.benchmarkType === 'Webview');
+        const dataForPeak = filteredData.filter(item => item.benchmarkType === 'Peak');
 
-        const chartDataForEcharts = Object.values(chartDataProcessed).sort((a,b) => b.score - a.score);
-
-        renderBenchmarkChart(chartDataForEcharts);
+        renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, dataForBase, 'Base');
+        renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, dataForWebview, 'Webview');
+        renderBenchmarkChart(benchmarkChartContainerPeak, benchmarkChartPeak, dataForPeak, 'Peak');
     }
 
     async function loadUploadedResults() {
-        if (benchmarkChartContainer) {
-            benchmarkChartContainer.style.display = 'block';
-            benchmarkChartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">正在加载数据...</p>';
-            if (benchmarkChart) {
-                benchmarkChart.dispose();
-                benchmarkChart = null;
-            }
-        }
+        clearAndShowLoading(benchmarkChartContainerBase, 'Base');
+        clearAndShowLoading(benchmarkChartContainerWebview, 'Webview');
+        clearAndShowLoading(benchmarkChartContainerPeak, 'Peak');
 
-        const currentBenchmarkTypeFilter = filterBenchmarkTypeSelect.value;
         const currentBrowserFilter = filterBrowserVersionSelect.value;
         const currentCpuFilter = filterCpuInfoSelect.value;
 
@@ -335,11 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             populateFilterOptions(allBenchmarkData);
 
-            if (filterBenchmarkTypeSelect.querySelector(`option[value="${currentBenchmarkTypeFilter}"]`)) {
-                filterBenchmarkTypeSelect.value = currentBenchmarkTypeFilter;
-            } else {
-                filterBenchmarkTypeSelect.value = "";
-            }
             if (filterBrowserVersionSelect.querySelector(`option[value="${currentBrowserFilter}"]`)) {
                 filterBrowserVersionSelect.value = currentBrowserFilter;
             } else {
@@ -354,55 +319,76 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFiltersAndRender();
 
         } catch (error) {
-            if (benchmarkChartContainer) {
-                benchmarkChartContainer.style.display = 'block';
-                benchmarkChartContainer.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">图表数据加载失败: ${error.message || '未知错误'}</p>`;
-            }
+            showErrorInChartContainer(benchmarkChartContainerBase, `Base 类型图表数据加载失败: ${error.message || '未知错误'}`);
+            showErrorInChartContainer(benchmarkChartContainerWebview, `Webview 类型图表数据加载失败: ${error.message || '未知错误'}`);
+            showErrorInChartContainer(benchmarkChartContainerPeak, `Peak 类型图表数据加载失败: ${error.message || '未知错误'}`);
             allBenchmarkData = [];
             populateFilterOptions([]);
         }
     }
 
-    function renderBenchmarkChart(dataForChart) {
-        if (!echarts || !benchmarkChartContainer) {
-            if (benchmarkChartContainer) benchmarkChartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px; color: red;">图表初始化失败。</p>';
-            return;
+    function renderBenchmarkChart(container, chartInstance, data, titlePrefix) {
+        if (!echarts || !container) {
+            container.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">${titlePrefix} 类型图表初始化失败。</p>`;
+            return null;
         }
 
-        benchmarkChartContainer.innerHTML = '';
-        benchmarkChartContainer.style.display = 'block';
+        container.innerHTML = `<h2>${titlePrefix} 类型跑分</h2>`;
+        const chartDiv = document.createElement('div');
+        chartDiv.style.width = '100%';
+        chartDiv.style.height = 'auto';
+        chartDiv.style.minHeight = '300px';
+        container.appendChild(chartDiv);
 
         const itemHeight = 25;
         const minChartHeight = 300;
-        const calculatedHeight = Math.max(minChartHeight, dataForChart.length * itemHeight + 100);
-        benchmarkChartContainer.style.height = `${calculatedHeight}px`; // 将高度设置移到初始化前
+        const calculatedHeight = Math.max(minChartHeight, data.length * itemHeight + 100);
+        chartDiv.style.height = `${calculatedHeight}px`;
 
-        if (benchmarkChart) {
-            benchmarkChart.dispose();
+        if (chartInstance) {
+            chartInstance.dispose();
         }
-        benchmarkChart = echarts.init(benchmarkChartContainer); // ECharts 初始化
+        chartInstance = echarts.init(chartDiv);
 
-        if (dataForChart.length === 0) {
-            benchmarkChartContainer.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
-            return;
+        if (data.length === 0) {
+            chartDiv.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
+            return null;
         }
 
-        const chartOption = {
+        const chartDataProcessed = {};
+        data.forEach(item => {
+            const key = item.cpuInfo;
+            if (!chartDataProcessed[key] || item.speedometerScore > chartDataProcessed[key].score) {
+                chartDataProcessed[key] = {
+                    device: key,
+                    score: item.speedometerScore,
+                    benchmarkType: item.benchmarkType,
+                    browserVersion: item.browserVersion,
+                    speedometerError: item.speedometerError,
+                    timestamp: item.timestamp
+                };
+            }
+        });
+
+        const chartDataForEcharts = Object.values(chartDataProcessed).sort((a, b) => b.score - a.score);
+
+        const option = {
             title: {
-                text: '设备最高跑分对比 (Speedometer 3.1)',
-                left: 'center'
+                text: `${titlePrefix} 类型设备跑分对比 (Speedometer 3.1)`,
+                left: 'center',
+                top: '5%'
             },
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
                 formatter: function (params) {
                     const item = params[0];
-                    const originalDataItem = dataForChart.find(d => d.device === item.name && d.score === item.value);
+                    const originalDataItem = chartDataForEcharts.find(d => d.device === item.name && d.score === item.value);
                     if (originalDataItem) {
                         const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
                         return `
                             <strong>设备 (CPU): ${item.name}</strong><br/>
-                            最高分数: ${item.value}<br/>
+                            分数: ${item.value}<br/>
                             跑分类型: ${originalDataItem.benchmarkType || 'N/A'}<br/>
                             浏览器: ${originalDataItem.browserVersion || 'N/A'}<br/>
                             误差: ${originalDataItem.speedometerError || 'N/A'}<br/>
@@ -426,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             yAxis: {
                 type: 'category',
-                data: dataForChart.map(item => item.device),
+                data: chartDataForEcharts.map(item => item.device),
                 inverse: true,
                 axisLabel: {
                     interval: 0,
@@ -436,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: '最高分数',
                 type: 'bar',
                 barMaxWidth: '60%',
-                data: dataForChart.map(item => item.score),
+                data: chartDataForEcharts.map(item => item.score),
                 itemStyle: {
                     borderRadius: [0, 5, 5, 0]
                 },
@@ -447,17 +433,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }]
         };
-        benchmarkChart.setOption(chartOption, true);
-        benchmarkChart.resize(); // 在设置选项后立即调用 resize
+        chartInstance.setOption(option, true);
+        chartInstance.resize();
+        return chartInstance;
     }
 
-    function resizeChart() {
-        if (benchmarkChart) {
-            benchmarkChart.resize();
+    function clearAndShowLoading(container, type) {
+        if (container) {
+            container.innerHTML = `<h2>${type} 类型跑分</h2><p style="text-align:center; padding-top: 50px;">正在加载数据...</p>`;
+            if (type === 'Base' && benchmarkChartBase) {
+                benchmarkChartBase.dispose();
+                benchmarkChartBase = null;
+            } else if (type === 'Webview' && benchmarkChartWebview) {
+                benchmarkChartWebview.dispose();
+                benchmarkChartWebview = null;
+            } else if (type === 'Peak' && benchmarkChartPeak) {
+                benchmarkChartPeak.dispose();
+                benchmarkChartPeak = null;
+            }
         }
     }
 
-    window.addEventListener('resize', resizeChart);
+    function clearAndShowNoData(container, chartInstance, type) {
+        if (container) {
+            container.innerHTML = `<h2>${type} 类型跑分</h2><p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>`;
+            if (chartInstance) {
+                chartInstance.dispose();
+                chartInstance = null;
+            }
+        }
+    }
+
+    function showErrorInChartContainer(container, errorMessage) {
+        if (container) {
+            container.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">${errorMessage}</p>`;
+        }
+    }
+
+    function resizeCharts() {
+        if (benchmarkChartBase) {
+            benchmarkChartBase.resize();
+        }
+        if (benchmarkChartWebview) {
+            benchmarkChartWebview.resize();
+        }
+        if (benchmarkChartPeak) {
+            benchmarkChartPeak.resize();
+        }
+    }
+
+    window.addEventListener('resize', resizeCharts);
 
     function showMessage(msg, type) {
         if (!messageDiv) return;
@@ -480,12 +505,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
-    if (filterBenchmarkTypeSelect) filterBenchmarkTypeSelect.addEventListener('change', applyFiltersAndRender);
     if (filterBrowserVersionSelect) filterBrowserVersionSelect.addEventListener('change', applyFiltersAndRender);
     if (filterCpuInfoSelect) filterCpuInfoSelect.addEventListener('change', applyFiltersAndRender);
     if (resetFiltersButton) {
         resetFiltersButton.addEventListener('click', () => {
-            if(filterBenchmarkTypeSelect) filterBenchmarkTypeSelect.value = '';
             if(filterBrowserVersionSelect) filterBrowserVersionSelect.value = '';
             if(filterCpuInfoSelect) filterCpuInfoSelect.value = '';
             applyFiltersAndRender();

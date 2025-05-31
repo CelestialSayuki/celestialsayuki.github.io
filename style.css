@@ -320,7 +320,7 @@ button:disabled:hover {
     background-color: #5a6268;
 }
 
-#benchmarkChartContainer {
+.benchmark-chart-individual-container {
     width: 100%;
     height: auto;
     min-height: 300px;
@@ -467,7 +467,7 @@ button:disabled:hover {
         padding: 12px;
     }
 
-    #benchmarkChartContainer {
+    .benchmark-chart-individual-container {
         height: 300px;
         padding: 10px;
         margin-bottom: 20px;
