@@ -253,9 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyFiltersAndRender() {
         if (!allBenchmarkData.length) {
-            clearAndShowNoData(benchmarkChartContainerBase, benchmarkChartBase, 'Peak');
-            clearAndShowNoData(benchmarkChartContainerWebview, benchmarkChartWebview, 'Base');
-            clearAndShowNoData(benchmarkChartContainerPeak, benchmarkChartPeak, 'Webview');
+            clearAndShowNoData(benchmarkChartContainerPeak, benchmarkChartPeak, 'Peak');
+            clearAndShowNoData(benchmarkChartContainerBase, benchmarkChartBase, 'Base');
+            clearAndShowNoData(benchmarkChartContainerWebview, benchmarkChartWebview, 'Webview');
             return;
         }
 
