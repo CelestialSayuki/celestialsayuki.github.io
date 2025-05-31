@@ -83,7 +83,18 @@ document.addEventListener('DOMContentLoaded', () => {
         let browserName = '未知浏览器';
         let browserVersion = '未知版本';
 
-        if (userAgent.includes('HuaweiBrowser')) {
+        if (userAgent.includes('HeyTapBrowser')) {
+            browserName = 'OppoBrowser';
+            const heyTapBrowserVersion = userAgent.match(/HeyTapBrowser\/(\d+(\.\d+){1,3})/);
+            if (heyTapBrowserVersion && heyTapBrowserVersion[1]) {
+                browserVersion = heyTapBrowserVersion[1];
+            }
+            const chromeCoreVersion = userAgent.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/);
+            if (chromeCoreVersion && chromeCoreVersion[1]) {
+                browserVersion += ` (Chrome ${chromeCoreVersion[1]})`;
+            }
+        }
+        else if (userAgent.includes('HuaweiBrowser')) {
             browserName = 'HuaweiBrowser';
             const huaweiBrowserVersion = userAgent.match(/HuaweiBrowser\/(\d+\.\d+\.\d+\.\d+)/);
             if (huaweiBrowserVersion && huaweiBrowserVersion[1]) {
