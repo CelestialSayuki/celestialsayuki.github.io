@@ -326,14 +326,26 @@ button:disabled:hover {
     width: 100%;
     height: auto;
     min-height: 300px;
-    margin-bottom: 30px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     padding: 20px;
     box-sizing: border-box;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
+    transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out, margin-bottom 0.3s ease-in-out, padding 0.3s ease-in-out;
+    max-height: 1000px;
+    margin-bottom: 30px;
+    border: 1px solid #eee;
+}
+
+.benchmark-chart-individual-container.chart-hidden {
+    opacity: 0;
+    max-height: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .results-container {
