@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
         });
-        return Object.values(chartDataProcessed).sort((a, b) => b.score - a.score);
+        return Object.values(chartDataProcessed).sort((a, b) => b.score - a.s;core);
     }
 
     window.addEventListener('message', (event) => {
@@ -470,153 +470,132 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderBenchmarkChart(container, chartInstance, chartDataForEcharts, titlePrefix) {
-        container.style.display = 'block';
-        container.classList.remove('chart-hidden');
-        container.style.opacity = 1;
-        container.style.marginBottom = '30px';
-        container.style.background = '#fff';
-        container.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-        container.style.border = '1px solid #eee';
-        container.style.padding = '20px';
+        if (!echarts || !container) {
+            container.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">${titlePrefix} 类型图表初始化失败。</p>`;
+            return null;
+        }
+
+        container.innerHTML = `<h2>${titlePrefix} 类型跑分</h2>`;
+        const chartDiv = document.createElement('div');
+        chartDiv.style.width = '100%';
+        chartDiv.style.height = 'auto';
+        chartDiv.style.minHeight = '300px';
+        container.appendChild(chartDiv);
 
         const itemHeight = 25;
         const minChartHeight = 300;
-        let calculatedHeight = Math.max(minChartHeight, chartDataForEcharts.length * itemHeight + 100);
+        const calculatedHeight = Math.max(minChartHeight, chartDataForEcharts.length * itemHeight + 100);
+        console.log(`Rendering ${titlePrefix} Chart. Calculated Height: ${calculatedHeight}px`);
+
+        chartDiv.style.height = `${calculatedHeight}px`;
 
         if (chartInstance) {
             chartInstance.dispose();
-            chartInstance = null;
         }
+        chartInstance = echarts.init(chartDiv);
 
         if (chartDataForEcharts.length === 0) {
-            container.classList.add('chart-hidden');
-            container.innerHTML = '';
+            chartDiv.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
             return null;
-        } else {
-            container.innerHTML = `<h2>${titlePrefix} 类型跑分</h2>`;
-            const chartDiv = document.createElement('div');
-            
-            chartDiv.style.width = '100%';
-            chartDiv.style.height = `${calculatedHeight - 100}px`;
-            chartDiv.style.minHeight = `${minChartHeight - 100}px`;
-            container.appendChild(chartDiv);
-
-            container.style.maxHeight = `${calculatedHeight}px`;
-
-            chartInstance = echarts.init(chartDiv);
-
-            const option = {
-                title: {
-                    text: `${titlePrefix} 类型设备最高跑分对比 (Speedometer 3.1)`,
-                    left: 'center',
-                    top: '10px'
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: { type: 'shadow' },
-                    formatter: function (params) {
-                        const item = params[0];
-                        const originalDataItem = chartDataForEcharts.find(d => d.device === item.name && d.score === item.value);
-                        if (originalDataItem) {
-                            const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
-                            let scoreInfo = `最高分数: ${item.value}<br/>`;
-
-                            return `
-                                <strong>设备 (CPU): ${item.name}</strong><br/>
-                                ${scoreInfo}
-                                浏览器: ${originalDataItem.browserVersion || 'N/A'}<br/>
-                                误差: ${originalDataItem.speedometerError || 'N/A'}<br/>
-                                记录时间: ${date ? date.toLocaleString() : 'N/A'}
-                            `;
-                        }
-                        return `${item.name}<br/>分数: ${item.value}`;
-                    }
-                },
-                grid: {
-                    left: '10%',
-                    right: '8%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis: {
-                    type: 'value',
-                    name: '最高分数',
-                    nameLocation: 'center',
-                    nameGap: 20
-                },
-                yAxis: {
-                    type: 'category',
-                    data: chartDataForEcharts.map(item => item.device),
-                    inverse: true,
-                    axisLabel: {
-                        interval: 0,
-                    }
-                },
-                series: [{
-                    name: '最高分数',
-                    type: 'bar',
-                    barMaxWidth: '60%',
-                    data: chartDataForEcharts.map(item => item.score),
-                    itemStyle: {
-                        borderRadius: [0, 5, 5, 0]
-                    },
-                    label: {
-                        show: true,
-                        position: 'right',
-                        formatter: '{c}'
-                    }
-                }]
-            };
-            chartInstance.setOption(option, true);
-            chartInstance.resize();
         }
+
+        const option = {
+            title: {
+                text: `${titlePrefix} 类型设备最高跑分对比 (Speedometer 3.1)`,
+                left: 'center',
+                top: '10px'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                formatter: function (params) {
+                    const item = params[0];
+                    const originalDataItem = chartDataForEcharts.find(d => d.device === item.name && d.score === item.value);
+                    if (originalDataItem) {
+                        const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
+                        let scoreInfo = `最高分数: ${item.value}<br/>`;
+
+                        return `
+                            <strong>设备 (CPU): ${item.name}</strong><br/>
+                            ${scoreInfo}
+                            浏览器: ${originalDataItem.browserVersion || 'N/A'}<br/>
+                            误差: ${originalDataItem.speedometerError || 'N/A'}<br/>
+                            记录时间: ${date ? date.toLocaleString() : 'N/A'}
+                        `;
+                    }
+                    return `${item.name}<br/>分数: ${item.value}`;
+                }
+            },
+            grid: {
+                left: '10%',
+                right: '8%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                name: '最高分数',
+                nameLocation: 'center',
+                nameGap: 20
+            },
+            yAxis: {
+                type: 'category',
+                data: chartDataForEcharts.map(item => item.device),
+                inverse: true,
+                axisLabel: {
+                    interval: 0,
+                }
+            },
+            series: [{
+                name: '最高分数',
+                type: 'bar',
+                barMaxWidth: '60%',
+                data: chartDataForEcharts.map(item => item.score),
+                itemStyle: {
+                    borderRadius: [0, 5, 5, 0]
+                },
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: '{c}'
+                }
+            }]
+        };
+        chartInstance.setOption(option, true);
+        chartInstance.resize();
         return chartInstance;
     }
 
     function clearAndShowLoading(container, type) {
-        container.style.display = 'block';
-        container.classList.remove('chart-hidden');
-        container.style.opacity = 1;
-        container.style.maxHeight = '1000px';
-        container.style.marginBottom = '30px';
-        container.style.background = '#fff';
-        container.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-        container.style.border = '1px solid #eee';
-        container.style.padding = '20px';
-
-        container.innerHTML = `<h2>${type} 类型跑分</h2><p style="text-align:center; padding-top: 50px;">正在加载数据...</p>`;
-        if (type === 'Base' && benchmarkChartBase) {
-            benchmarkChartBase.dispose();
-            benchmarkChartBase = null;
-        } else if (type === 'Webview' && benchmarkChartWebview) {
-            benchmarkChartWebview.dispose();
-            benchmarkChartWebview = null;
-        } else if (type === 'Peak' && benchmarkChartPeak) {
-            benchmarkChartPeak.dispose();
-            benchmarkChartPeak = null;
+        if (container) {
+            container.innerHTML = `<h2>${type} 类型跑分</h2><p style="text-align:center; padding-top: 50px;">正在加载数据...</p>`;
+            if (type === 'Base' && benchmarkChartBase) {
+                benchmarkChartBase.dispose();
+                benchmarkChartBase = null;
+            } else if (type === 'Webview' && benchmarkChartWebview) {
+                benchmarkChartWebview.dispose();
+                benchmarkChartWebview = null;
+            } else if (type === 'Peak' && benchmarkChartPeak) {
+                benchmarkChartPeak.dispose();
+                benchmarkChartPeak = null;
+            }
         }
     }
 
     function clearAndShowNoData(container, chartInstance, type) {
-        if (chartInstance) {
-            chartInstance.dispose();
+        if (container) {
+            container.innerHTML = `<h2>${type} 类型跑分</h2><p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>`;
+            if (chartInstance) {
+                chartInstance.dispose();
+                chartInstance = null;
+            }
         }
-        container.classList.add('chart-hidden');
-        container.innerHTML = '';
     }
 
     function showErrorInChartContainer(container, errorMessage) {
-        container.style.display = 'block';
-        container.classList.remove('chart-hidden');
-        container.style.opacity = 1;
-        container.style.maxHeight = '1000px';
-        container.style.marginBottom = '30px';
-        container.style.background = '#fff';
-        container.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-        container.style.border = '1px solid #eee';
-        container.style.padding = '20px';
-
-        container.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">${errorMessage}</p>`;
+        if (container) {
+            container.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">${errorMessage}</p>`;
+        }
     }
 
     function resizeCharts() {
