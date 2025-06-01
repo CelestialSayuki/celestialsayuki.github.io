@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         data: chartDataForEcharts.map(item => ({
                             value: item.score,
                             itemStyle: {
-                                color: item.isPeakData ? ''#28a745' : '#007bff'
+                                color: item.isPeakData ? '#28a745' : '#007bff'
                             }
                         })),
                         itemStyle: {
