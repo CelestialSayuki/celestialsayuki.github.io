@@ -71,16 +71,22 @@
 
             <div class="filters-container">
                 <div class="filter-group">
-                    <label for="filterBrowserVersion">筛选 Webview/系统版本:</label>
-                    <select id="filterBrowserVersion">
-                        <option value="">所有版本</option>
-                    </select>
+                    <label>筛选 Webview/系统版本:</label>
+                    <div id="filterBrowserVersionCheckboxes" class="checkbox-group-container">
+                    </div>
+                    <div class="checkbox-actions">
+                        <button id="selectAllBrowserButton">全选</button>
+                        <button id="deselectAllBrowserButton">取消全选</button>
+                    </div>
                 </div>
                 <div class="filter-group">
-                    <label for="filterCpuInfo">筛选 CPU 型号:</label>
-                    <select id="filterCpuInfo">
-                        <option value="">所有CPU</option>
-                    </select>
+                    <label>筛选 CPU 型号:</label>
+                    <div id="filterCpuInfoCheckboxes" class="checkbox-group-container">
+                    </div>
+                    <div class="checkbox-actions">
+                        <button id="selectAllCpuButton">全选</button>
+                        <button id="deselectAllCpuButton">取消全选</button>
+                    </div>
                 </div>
                 <button id="resetFiltersButton">重置筛选</button>
                 <button id="refreshResultsButton">刷新</button>

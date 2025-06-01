@@ -20,8 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const speedometerErrorInput = document.getElementById('speedometerError');
     const cpuInfoInput = document.getElementById('cpuInfo');
 
-    const filterBrowserVersionSelect = document.getElementById('filterBrowserVersion');
-    const filterCpuInfoSelect = document.getElementById('filterCpuInfo');
+    const filterBrowserVersionCheckboxesContainer = document.getElementById('filterBrowserVersionCheckboxes');
+    const selectAllBrowserButton = document.getElementById('selectAllBrowserButton');
+    const deselectAllBrowserButton = document.getElementById('deselectAllBrowserButton');
+    const filterCpuInfoCheckboxesContainer = document.getElementById('filterCpuInfoCheckboxes');
+    const selectAllCpuButton = document.getElementById('selectAllCpuButton');
+    const deselectAllCpuButton = document.getElementById('deselectAllCpuButton');
+
     const resetFiltersButton = document.getElementById('resetFiltersButton');
     const refreshResultsButton = document.getElementById('refreshResultsButton');
 
@@ -255,25 +260,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function populateFilterOptions(data) {
-        if (!filterBrowserVersionSelect || !filterCpuInfoSelect) return;
+        if (!filterBrowserVersionCheckboxesContainer || !filterCpuInfoCheckboxesContainer) return;
 
         const uniqueBrowserVersions = [...new Set(data.map(item => item.browserVersion).filter(Boolean))].sort();
         const uniqueCpuInfos = [...new Set(data.map(item => item.cpuInfo).filter(Boolean))].sort();
 
-        filterBrowserVersionSelect.innerHTML = '<option value="">所有版本</option>';
+        filterBrowserVersionCheckboxesContainer.innerHTML = '';
         uniqueBrowserVersions.forEach(version => {
-            const option = document.createElement('option');
-            option.value = version;
-            option.textContent = version;
-            filterBrowserVersionSelect.appendChild(option);
+            const checkboxId = `browser-${version.replace(/[^a-zA-Z0-9]/g, '-')}`;
+            const checkboxHtml = `
+                <label for="${checkboxId}">
+                    <input type="checkbox" id="${checkboxId}" value="${version}" name="filterBrowserVersion">
+                    ${version}
+                </label>
+            `;
+            filterBrowserVersionCheckboxesContainer.insertAdjacentHTML('beforeend', checkboxHtml);
+        });
+        filterBrowserVersionCheckboxesContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', applyFiltersAndRender);
         });
 
-        filterCpuInfoSelect.innerHTML = '<option value="">所有CPU</option>';
+        filterCpuInfoCheckboxesContainer.innerHTML = '';
         uniqueCpuInfos.forEach(cpu => {
-            const option = document.createElement('option');
-            option.value = cpu;
-            option.textContent = cpu;
-            filterCpuInfoSelect.appendChild(option);
+            const checkboxId = `cpu-${cpu.replace(/[^a-zA-Z0-9]/g, '-')}`;
+            const checkboxHtml = `
+                <label for="${checkboxId}">
+                    <input type="checkbox" id="${checkboxId}" value="${cpu}" name="filterCpuInfo">
+                    ${cpu}
+                </label>
+            `;
+            filterCpuInfoCheckboxesContainer.insertAdjacentHTML('beforeend', checkboxHtml);
+        });
+        filterCpuInfoCheckboxesContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', applyFiltersAndRender);
         });
     }
 
@@ -285,16 +304,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const selectedBrowserVersion = filterBrowserVersionSelect.value;
-        const selectedCpuInfo = filterCpuInfoSelect.value;
+        const selectedBrowserVersions = Array.from(filterBrowserVersionCheckboxesContainer.querySelectorAll('input[name="filterBrowserVersion"]:checked'))
+                                         .map(checkbox => checkbox.value);
+        const selectedCpuInfos = Array.from(filterCpuInfoCheckboxesContainer.querySelectorAll('input[name="filterCpuInfo"]:checked'))
+                                     .map(checkbox => checkbox.value);
 
         let filteredData = allBenchmarkData;
 
-        if (selectedBrowserVersion) {
-            filteredData = filteredData.filter(item => item.browserVersion === selectedBrowserVersion);
+        if (selectedBrowserVersions.length > 0) {
+            filteredData = filteredData.filter(item => selectedBrowserVersions.includes(item.browserVersion));
         }
-        if (selectedCpuInfo) {
-            filteredData = filteredData.filter(item => item.cpuInfo === selectedCpuInfo);
+        if (selectedCpuInfos.length > 0) {
+            filteredData = filteredData.filter(item => selectedCpuInfos.includes(item.cpuInfo));
         }
 
         const rawDataForBase = filteredData.filter(item => item.benchmarkType === 'Base');
@@ -376,8 +397,10 @@ document.addEventListener('DOMContentLoaded', () => {
         clearAndShowLoading(benchmarkChartContainerBase, 'Base');
         clearAndShowLoading(benchmarkChartContainerWebview, 'Webview');
 
-        const currentBrowserFilter = filterBrowserVersionSelect.value;
-        const currentCpuFilter = filterCpuInfoSelect.value;
+        const currentSelectedBrowserVersions = Array.from(filterBrowserVersionCheckboxesContainer.querySelectorAll('input[name="filterBrowserVersion"]:checked'))
+                                         .map(checkbox => checkbox.value);
+        const currentSelectedCpuInfos = Array.from(filterCpuInfoCheckboxesContainer.querySelectorAll('input[name="filterCpuInfo"]:checked'))
+                                         .map(checkbox => checkbox.value);
 
         try {
             const { data, error } = await supabase
@@ -396,16 +419,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             populateFilterOptions(allBenchmarkData);
 
-            if (filterBrowserVersionSelect.querySelector(`option[value="${currentBrowserFilter}"]`)) {
-                filterBrowserVersionSelect.value = currentBrowserFilter;
-            } else {
-                filterBrowserVersionSelect.value = "";
-            }
-            if (filterCpuInfoSelect.querySelector(`option[value="${currentCpuFilter}"]`)) {
-                filterCpuInfoSelect.value = "";
-            } else {
-                filterCpuInfoSelect.value = "";
-            }
+            filterBrowserVersionCheckboxesContainer.querySelectorAll('input[name="filterBrowserVersion"]').forEach(checkbox => {
+                if (currentSelectedBrowserVersions.includes(checkbox.value)) {
+                    checkbox.checked = true;
+                }
+            });
+            filterCpuInfoCheckboxesContainer.querySelectorAll('input[name="filterCpuInfo"]').forEach(checkbox => {
+                if (currentSelectedCpuInfos.includes(checkbox.value)) {
+                    checkbox.checked = true;
+                }
+            });
 
             applyFiltersAndRender();
 
@@ -582,12 +605,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
-    if (filterBrowserVersionSelect) filterBrowserVersionSelect.addEventListener('change', applyFiltersAndRender);
-    if (filterCpuInfoSelect) filterCpuInfoSelect.addEventListener('change', applyFiltersAndRender);
+    if (selectAllBrowserButton) {
+        selectAllBrowserButton.addEventListener('click', () => {
+            filterBrowserVersionCheckboxesContainer.querySelectorAll('input[name="filterBrowserVersion"]').forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            applyFiltersAndRender();
+        });
+    }
+
+    if (deselectAllBrowserButton) {
+        deselectAllBrowserButton.addEventListener('click', () => {
+            filterBrowserVersionCheckboxesContainer.querySelectorAll('input[name="filterBrowserVersion"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            applyFiltersAndRender();
+        });
+    }
+
+    if (selectAllCpuButton) {
+        selectAllCpuButton.addEventListener('click', () => {
+            filterCpuInfoCheckboxesContainer.querySelectorAll('input[name="filterCpuInfo"]').forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            applyFiltersAndRender();
+        });
+    }
+
+    if (deselectAllCpuButton) {
+        deselectAllCpuButton.addEventListener('click', () => {
+            filterCpuInfoCheckboxesContainer.querySelectorAll('input[name="filterCpuInfo"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            applyFiltersAndRender();
+        });
+    }
+
     if (resetFiltersButton) {
         resetFiltersButton.addEventListener('click', () => {
-            if(filterBrowserVersionSelect) filterBrowserVersionSelect.value = '';
-            if(filterCpuInfoSelect) filterCpuInfoSelect.value = '';
+            if(filterBrowserVersionCheckboxesContainer) {
+                filterBrowserVersionCheckboxesContainer.querySelectorAll('input[name="filterBrowserVersion"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            }
+            if(filterCpuInfoCheckboxesContainer) {
+                filterCpuInfoCheckboxesContainer.querySelectorAll('input[name="filterCpuInfo"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            }
             applyFiltersAndRender();
         });
     }
