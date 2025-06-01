@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return TARGET_MANUFACTURERS.includes(firstWord);
     }
 
-    function processChartDataForEcharts(dataArray, isPeakChart = false) {
+    function processChartDataForEcharts(dataArray) {
         const chartDataProcessed = {};
         dataArray.forEach(item => {
             const key = item.cpuInfo;
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     browserVersion: item.browserVersion,
                     speedometerError: item.speedometerError,
                     timestamp: item.timestamp,
-                    isPeakData: isPeakChart ? true : (item.benchmarkType === 'Peak')
+                    isPeakData: item.isPeakData || false
                 };
             }
         });
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const processedBaseCpuInfos = new Set();
 
         rawDataForBase.forEach(item => {
-            let itemToAdd = { ...item, isPeakData: false }; // Mark as not peak data initially for Base
+            let itemToAdd = { ...item, isPeakData: false };
             if (isTargetManufacturer(item.cpuInfo)) {
                 const peakData = peakScoresMap.get(item.cpuInfo);
                 if (peakData) {
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const finalChartDataForPeak = processChartDataForEcharts(rawDataForPeak, true);
+        const finalChartDataForPeak = processChartDataForEcharts(rawDataForPeak);
         const finalChartDataForBase = processChartDataForEcharts(intermediateDataForBaseChart);
         const finalChartDataForWebview = processChartDataForEcharts(intermediateDataForWebviewChart);
 
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         data: chartDataForEcharts.map(item => ({
                             value: item.score,
                             itemStyle: {
-                                color: item.isPeakData ? '#28a745' : '#007bff'
+                                color: item.isPeakData ? '#ffa500' : '#007bff'
                             }
                         })),
                         itemStyle: {
