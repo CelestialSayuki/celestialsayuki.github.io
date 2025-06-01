@@ -279,43 +279,74 @@ document.addEventListener('DOMContentLoaded', () => {
             filteredData = filteredData.filter(item => item.cpuInfo === selectedCpuInfo);
         }
 
-        const dataForBase = filteredData.filter(item => item.benchmarkType === 'Base');
-        const dataForWebview = filteredData.filter(item => item.benchmarkType === 'Webview');
-        const dataForPeak = filteredData.filter(item => item.benchmarkType === 'Peak');
+        const rawDataForBase = filteredData.filter(item => item.benchmarkType === 'Base');
+        const rawDataForWebview = filteredData.filter(item => item.benchmarkType === 'Webview');
+        const rawDataForPeak = filteredData.filter(item => item.benchmarkType === 'Peak');
 
         const peakScoresMap = new Map();
-        dataForPeak.forEach(item => {
+        rawDataForPeak.forEach(item => {
             if (!peakScoresMap.has(item.cpuInfo) || item.speedometerScore > peakScoresMap.get(item.cpuInfo).speedometerScore) {
-                peakScoresMap.set(item.cpuInfo, {
-                    score: item.speedometerScore,
-                    error: item.speedometerError,
-                    timestamp: item.timestamp
-                });
+                peakScoresMap.set(item.cpuInfo, item);
             }
         });
 
-        function transformToPeakScoreIfApplicable(dataArray) {
-            return dataArray.map(item => {
-                if (isTargetManufacturer(item.cpuInfo)) {
-                    const peakData = peakScoresMap.get(item.cpuInfo);
-                    if (peakData) {
-                        return {
-                            ...item,
-                            speedometerScore: peakData.score,
-                            speedometerError: peakData.error,
-                        };
-                    }
+        const finalDataForBaseChart = [];
+        const processedBaseCpuInfos = new Set();
+
+        rawDataForBase.forEach(item => {
+            let itemToAdd = { ...item };
+            if (isTargetManufacturer(item.cpuInfo)) {
+                const peakData = peakScoresMap.get(item.cpuInfo);
+                if (peakData) {
+                    itemToAdd.speedometerScore = peakData.speedometerScore;
+                    itemToAdd.speedometerError = peakData.speedometerError;
+                    itemToAdd.timestamp = peakData.timestamp;
                 }
-                return { ...item };
-            });
-        }
+            }
+            finalDataForBaseChart.push(itemToAdd);
+            processedBaseCpuInfos.add(itemToAdd.cpuInfo);
+        });
 
-        const transformedDataForBase = transformToPeakScoreIfApplicable(dataForBase);
-        const transformedDataForWebview = transformToPeakScoreIfApplicable(dataForWebview);
+        peakScoresMap.forEach((peakItem, cpuInfo) => {
+            if (isTargetManufacturer(cpuInfo) && !processedBaseCpuInfos.has(cpuInfo)) {
+                finalDataForBaseChart.push({
+                    ...peakItem,
+                    benchmarkType: 'Base',
+                });
+                processedBaseCpuInfos.add(cpuInfo); // 标记为已处理
+            }
+        });
 
-        benchmarkChartPeak = renderBenchmarkChart(benchmarkChartContainerPeak, benchmarkChartPeak, dataForPeak, 'Peak');
-        benchmarkChartBase = renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, transformedDataForBase, 'Base');
-        benchmarkChartWebview = renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, transformedDataForWebview, 'Webview');
+        const finalDataForWebviewChart = [];
+        const processedWebviewCpuInfos = new Set();
+
+        rawDataForWebview.forEach(item => {
+            let itemToAdd = { ...item };
+            if (isTargetManufacturer(item.cpuInfo)) {
+                const peakData = peakScoresMap.get(item.cpuInfo);
+                if (peakData) {
+                    itemToAdd.speedometerScore = peakData.speedometerScore;
+                    itemToAdd.speedometerError = peakData.speedometerError;
+                    itemToAdd.timestamp = peakData.timestamp;
+                }
+            }
+            finalDataForWebviewChart.push(itemToAdd);
+            processedWebviewCpuInfos.add(itemToAdd.cpuInfo);
+        });
+
+        peakScoresMap.forEach((peakItem, cpuInfo) => {
+            if (isTargetManufacturer(cpuInfo) && !processedWebviewCpuInfos.has(cpuInfo)) {
+                finalDataForWebviewChart.push({
+                    ...peakItem,
+                    benchmarkType: 'Webview',
+                });
+                processedWebviewCpuInfos.add(cpuInfo);
+            }
+        });
+
+        benchmarkChartPeak = renderBenchmarkChart(benchmarkChartContainerPeak, benchmarkChartPeak, rawDataForPeak, 'Peak');
+        benchmarkChartBase = renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, finalDataForBaseChart, 'Base');
+        benchmarkChartWebview = renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, finalDataForWebviewChart, 'Webview');
     }
 
     async function loadUploadedResults() {
@@ -425,7 +456,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (originalDataItem) {
                         const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
                         let scoreInfo = `最高分数: ${item.value}<br/>`;
-
                         return `
                             <strong>设备 (CPU): ${item.name}</strong><br/>
                             ${scoreInfo}
