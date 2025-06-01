@@ -42,6 +42,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return TARGET_MANUFACTURERS.includes(firstWord);
     }
 
+    function processChartDataForEcharts(dataArray) {
+        const chartDataProcessed = {};
+        dataArray.forEach(item => {
+            const key = item.cpuInfo;
+            if (!chartDataProcessed[key] || item.speedometerScore > chartDataProcessed[key].score) {
+                chartDataProcessed[key] = {
+                    device: key,
+                    score: item.speedometerScore,
+                    benchmarkType: item.benchmarkType,
+                    browserVersion: item.browserVersion,
+                    speedometerError: item.speedometerError,
+                    timestamp: item.timestamp
+                };
+            }
+        });
+        return Object.values(chartDataProcessed).sort((a, b) => b.score - a.score);
+    }
+
     window.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'speedometerResult') {
             const { score, error } = event.data;
@@ -290,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const finalDataForBaseChart = [];
+        const intermediateDataForBaseChart = [];
         const processedBaseCpuInfos = new Set();
 
         rawDataForBase.forEach(item => {
@@ -313,11 +331,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ...peakItem,
                     benchmarkType: 'Base',
                 });
-                processedBaseCpuInfos.add(cpuInfo); // 标记为已处理
+                processedBaseCpuInfos.add(cpuInfo);
             }
         });
 
-        const finalDataForWebviewChart = [];
+        const intermediateDataForWebviewChart = [];
         const processedWebviewCpuInfos = new Set();
 
         rawDataForWebview.forEach(item => {
@@ -330,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemToAdd.timestamp = peakData.timestamp;
                 }
             }
-            finalDataForWebviewChart.push(itemToAdd);
+            intermediateDataForWebviewChart.push(itemToAdd);
             processedWebviewCpuInfos.add(itemToAdd.cpuInfo);
         });
 
@@ -344,9 +362,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        benchmarkChartPeak = renderBenchmarkChart(benchmarkChartContainerPeak, benchmarkChartPeak, rawDataForPeak, 'Peak');
-        benchmarkChartBase = renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, finalDataForBaseChart, 'Base');
-        benchmarkChartWebview = renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, finalDataForWebviewChart, 'Webview');
+        const finalChartDataForPeak = processChartDataForEcharts(rawDataForPeak);
+        const finalChartDataForBase = processChartDataForEcharts(intermediateDataForBaseChart);
+        const finalChartDataForWebview = processChartDataForEcharts(intermediateDataForWebviewChart);
+        benchmarkChartPeak = renderBenchmarkChart(benchmarkChartContainerPeak, benchmarkChartPeak, finalChartDataForPeak, 'Peak');
+        benchmarkChartBase = renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, finalChartDataForBase, 'Base');
+        benchmarkChartWebview = renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, finalChartDataForWebview, 'Webview');
     }
 
     async function loadUploadedResults() {
@@ -396,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderBenchmarkChart(container, chartInstance, data, titlePrefix) {
+    function renderBenchmarkChart(container, chartInstance, chartDataForEcharts, titlePrefix) {
         if (!echarts || !container) {
             container.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">${titlePrefix} 类型图表初始化失败。</p>`;
             return null;
@@ -409,9 +430,11 @@ document.addEventListener('DOMContentLoaded', () => {
         chartDiv.style.minHeight = '300px';
         container.appendChild(chartDiv);
 
-        const itemHeight = 15;
+        const itemHeight = 25;
         const minChartHeight = 300;
-        const calculatedHeight = Math.max(minChartHeight, data.length * itemHeight + 100);
+        const calculatedHeight = Math.max(minChartHeight, chartDataForEcharts.length * itemHeight + 100);
+        console.log(`Rendering ${titlePrefix} Chart. Calculated Height: ${calculatedHeight}px`);
+
         chartDiv.style.height = `${calculatedHeight}px`;
 
         if (chartInstance) {
@@ -419,27 +442,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         chartInstance = echarts.init(chartDiv);
 
-        if (data.length === 0) {
+        if (chartDataForEcharts.length === 0) {
             chartDiv.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
             return null;
         }
-
-        const chartDataProcessed = {};
-        data.forEach(item => {
-            const key = item.cpuInfo;
-            if (!chartDataProcessed[key] || item.speedometerScore > chartDataProcessed[key].score) {
-                chartDataProcessed[key] = {
-                    device: key,
-                    score: item.speedometerScore,
-                    benchmarkType: item.benchmarkType,
-                    browserVersion: item.browserVersion,
-                    speedometerError: item.speedometerError,
-                    timestamp: item.timestamp
-                };
-            }
-        });
-
-        const chartDataForEcharts = Object.values(chartDataProcessed).sort((a, b) => b.score - a.score);
 
         const option = {
             title: {
