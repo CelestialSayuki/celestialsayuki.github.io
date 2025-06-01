@@ -389,7 +389,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         return `
                             <strong>设备 (CPU): ${item.name}</strong><br/>
                             分数: ${item.value}<br/>
-                            跑分类型: ${originalDataItem.benchmarkType || 'N/A'}<br/>
                             浏览器: ${originalDataItem.browserVersion || 'N/A'}<br/>
                             误差: ${originalDataItem.speedometerError || 'N/A'}<br/>
                             记录时间: ${date ? date.toLocaleString() : 'N/A'}
