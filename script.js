@@ -589,7 +589,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         label: {
                             show: true,
                             position: 'right',
-                            formatter: '{c}'
+                            formatter: function(params) {
+                                return params.value.toFixed(2);
+                            }
                         }
                     }]
                 };
