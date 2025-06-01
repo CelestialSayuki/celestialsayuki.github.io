@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const originalDataItem = chartDataForEcharts.find(d => d.device === item.name && d.score === item.value);
                             if (originalDataItem) {
                                 const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
-                                let scoreInfo = `最高分数: ${item.value.toFixed(2)}<br/>`
+                                let scoreInfo = `最高分数: ${item.value}<br/>`
 
                                 return `
                                     <strong>设备 (CPU): ${item.name}</strong><br/>
@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             show: true,
                             position: 'right',
                             formatter: function(params) {
-                                return params.value.toFixed(2);
+                                return parseFloat(params.value).toFixed(2);
                             }
                         }
                     }]
