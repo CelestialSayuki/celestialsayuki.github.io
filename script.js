@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return TARGET_MANUFACTURERS.includes(firstWord);
     }
 
-    function processChartDataForEcharts(dataArray) {
+    function processChartDataForEcharts(dataArray, isPeakChart = false) {
         const chartDataProcessed = {};
         dataArray.forEach(item => {
             const key = item.cpuInfo;
@@ -58,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     benchmarkType: item.benchmarkType,
                     browserVersion: item.browserVersion,
                     speedometerError: item.speedometerError,
-                    timestamp: item.timestamp
+                    timestamp: item.timestamp,
+                    isPeakData: isPeakChart ? true : (item.benchmarkType === 'Peak')
                 };
             }
         });
@@ -333,13 +334,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const processedBaseCpuInfos = new Set();
 
         rawDataForBase.forEach(item => {
-            let itemToAdd = { ...item };
+            let itemToAdd = { ...item, isPeakData: false }; // Mark as not peak data initially for Base
             if (isTargetManufacturer(item.cpuInfo)) {
                 const peakData = peakScoresMap.get(item.cpuInfo);
                 if (peakData) {
                     itemToAdd.speedometerScore = peakData.speedometerScore;
                     itemToAdd.speedometerError = peakData.speedometerError;
                     itemToAdd.timestamp = peakData.timestamp;
+                    itemToAdd.isPeakData = true;
                 }
             }
             intermediateDataForBaseChart.push(itemToAdd);
@@ -351,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 intermediateDataForBaseChart.push({
                     ...peakItem,
                     benchmarkType: 'Base',
+                    isPeakData: true,
                 });
                 processedBaseCpuInfos.add(cpuInfo);
             }
@@ -360,13 +363,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const processedWebviewCpuInfos = new Set();
 
         rawDataForWebview.forEach(item => {
-            let itemToAdd = { ...item };
+            let itemToAdd = { ...item, isPeakData: false };
             if (isTargetManufacturer(item.cpuInfo)) {
                 const peakData = peakScoresMap.get(item.cpuInfo);
                 if (peakData) {
                     itemToAdd.speedometerScore = peakData.speedometerScore;
                     itemToAdd.speedometerError = peakData.speedometerError;
                     itemToAdd.timestamp = peakData.timestamp;
+                    itemToAdd.isPeakData = true;
                 }
             }
             intermediateDataForWebviewChart.push(itemToAdd);
@@ -378,12 +382,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 intermediateDataForWebviewChart.push({
                     ...peakItem,
                     benchmarkType: 'Webview',
+                    isPeakData: true,
                 });
                 processedWebviewCpuInfos.add(cpuInfo);
             }
         });
 
-        const finalChartDataForPeak = processChartDataForEcharts(rawDataForPeak);
+        const finalChartDataForPeak = processChartDataForEcharts(rawDataForPeak, true);
         const finalChartDataForBase = processChartDataForEcharts(intermediateDataForBaseChart);
         const finalChartDataForWebview = processChartDataForEcharts(intermediateDataForWebviewChart);
 
@@ -513,7 +518,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const chartDiv = document.createElement('div');
                 chartDiv.style.width = '100%';
                 chartDiv.style.height = 'auto';
-                chartDiv.style.minHeight = '100px';
                 chartContentWrapper.appendChild(chartDiv);
 
                 const itemHeight = 25;
@@ -574,7 +578,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         name: '最高分数',
                         type: 'bar',
                         barMaxWidth: '60%',
-                        data: chartDataForEcharts.map(item => item.score),
+                        data: chartDataForEcharts.map(item => ({
+                            value: item.score,
+                            itemStyle: {
+                                color: item.isPeakData ? ''#28a745' : '#007bff'
+                            }
+                        })),
                         itemStyle: {
                             borderRadius: [0, 5, 5, 0]
                         },
