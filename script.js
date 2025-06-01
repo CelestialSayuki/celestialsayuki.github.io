@@ -34,6 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let benchmarkChartPeak = null;
     let allBenchmarkData = [];
 
+    const TARGET_MANUFACTURERS = ['Intel', 'AMD', 'Apple', 'Google'];
+
+    function isTargetManufacturer(cpuInfo) {
+        if (!cpuInfo) return false;
+        const firstWord = cpuInfo.split(' ')[0];
+        return TARGET_MANUFACTURERS.includes(firstWord);
+    }
+
     window.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'speedometerResult') {
             const { score, error } = event.data;
@@ -275,9 +283,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataForWebview = filteredData.filter(item => item.benchmarkType === 'Webview');
         const dataForPeak = filteredData.filter(item => item.benchmarkType === 'Peak');
 
+        const peakScoresMap = new Map();
+        dataForPeak.forEach(item => {
+            if (!peakScoresMap.has(item.cpuInfo) || item.speedometerScore > peakScoresMap.get(item.cpuInfo).speedometerScore) {
+                peakScoresMap.set(item.cpuInfo, {
+                    score: item.speedometerScore,
+                    error: item.speedometerError,
+                    timestamp: item.timestamp
+                });
+            }
+        });
+
+        function transformToPeakScoreIfApplicable(dataArray) {
+            return dataArray.map(item => {
+                if (isTargetManufacturer(item.cpuInfo)) {
+                    const peakData = peakScoresMap.get(item.cpuInfo);
+                    if (peakData) {
+                        return {
+                            ...item,
+                            speedometerScore: peakData.score,
+                            speedometerError: peakData.error,
+                        };
+                    }
+                }
+                return { ...item };
+            });
+        }
+
+        const transformedDataForBase = transformToPeakScoreIfApplicable(dataForBase);
+        const transformedDataForWebview = transformToPeakScoreIfApplicable(dataForWebview);
+
         benchmarkChartPeak = renderBenchmarkChart(benchmarkChartContainerPeak, benchmarkChartPeak, dataForPeak, 'Peak');
-        benchmarkChartBase = renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, dataForBase, 'Base');
-        benchmarkChartWebview = renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, dataForWebview, 'Webview');
+        benchmarkChartBase = renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, transformedDataForBase, 'Base');
+        benchmarkChartWebview = renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, transformedDataForWebview, 'Webview');
     }
 
     async function loadUploadedResults() {
@@ -374,9 +412,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const option = {
             title: {
-                text: `${titlePrefix} 类型设备跑分对比 (Speedometer 3.1)`,
+                text: `${titlePrefix} 类型设备最高跑分对比 (Speedometer 3.1)`,
                 left: 'center',
-                top: '12px'
+                top: '10px'
             },
             tooltip: {
                 trigger: 'axis',
@@ -386,9 +424,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const originalDataItem = chartDataForEcharts.find(d => d.device === item.name && d.score === item.value);
                     if (originalDataItem) {
                         const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
+                        let scoreInfo = `最高分数: ${item.value}<br/>`;
+
                         return `
                             <strong>设备 (CPU): ${item.name}</strong><br/>
-                            分数: ${item.value}<br/>
+                            ${scoreInfo}
                             浏览器: ${originalDataItem.browserVersion || 'N/A'}<br/>
                             误差: ${originalDataItem.speedometerError || 'N/A'}<br/>
                             记录时间: ${date ? date.toLocaleString() : 'N/A'}
