@@ -180,43 +180,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentActiveSection = document.querySelector('.content-section.active');
         const targetSection = document.getElementById(targetId);
 
-        if (currentActiveSection && currentActiveSection.id !== targetId) {
-            currentActiveSection.style.opacity = 0;
+        if (!targetSection || targetSection.classList.contains('active')) {
+            return;
+        }
+
+        if (currentActiveSection) {
+            currentActiveSection.classList.remove('active');
             setTimeout(() => {
-                currentActiveSection.classList.remove('active');
                 currentActiveSection.style.display = 'none';
             }, 300);
-        } else if (!targetSection || targetSection.classList.contains('active')) {
-            return;
         }
 
         if (targetSection) {
             targetSection.style.display = 'block';
-            setTimeout(() => {
-                targetSection.style.opacity = 0;
-                targetSection.classList.add('active');
+            void targetSection.offsetWidth;
+            targetSection.classList.add('active');
+            
+            if (targetId === 'results-section') {
                 setTimeout(() => {
-                    targetSection.style.opacity = 1;
-                    if (targetId === 'results-section') {
-                        loadUploadedResults();
-                        setTimeout(() => {
-                            resizeCharts();
-                        }, 100);
-                    }
-                }, 50);
-            }, currentActiveSection && currentActiveSection.id !== targetId ? 300 : 0);
+                    loadUploadedResults();
+                    resizeCharts();
+                }, 300);
+            }
         }
 
         sidebarMenuItems.forEach(item => item.classList.remove('active'));
-        const activeSidebarItem = document.querySelector(`.sidebar .menu-item`);
-        if (activeSidebarItem && activeSidebarItem.dataset.target === targetId) {
-            activeSidebarItem.classList.add('active');
-        }
+        bottomNavItems.forEach(item => item.classList.remove('active'));
+
         sidebarMenuItems.forEach(item => {
             if (item.dataset.target === targetId) item.classList.add('active');
         });
-
-        bottomNavItems.forEach(item => item.classList.remove('active'));
         bottomNavItems.forEach(item => {
             if (item.dataset.target === targetId) item.classList.add('active');
         });
@@ -225,20 +218,14 @@ document.addEventListener('DOMContentLoaded', () => {
     contentSections.forEach((section, index) => {
         if (index > 0) {
             section.style.display = 'none';
-            section.style.opacity = 0;
         }
     });
 
     const initiallyActiveSection = document.querySelector('.content-section.active');
     if (initiallyActiveSection) {
-        initiallyActiveSection.style.opacity = 1;
         if (initiallyActiveSection.id === 'results-section') {
             loadUploadedResults();
-            setTimeout(() => {
-                resizeCharts();
-            }, 100);
-        } else {
-            activateTab(initiallyActiveSection.id);
+            resizeCharts();
         }
     }
 
