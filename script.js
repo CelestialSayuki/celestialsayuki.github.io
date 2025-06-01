@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 chartDiv.style.height = 'auto';
                 chartContentWrapper.appendChild(chartDiv);
 
-                const itemHeight = 25;
+                const itemHeight = 20;
                 const minChartHeight = 100;
                 const calculatedHeight = Math.max(minChartHeight, chartDataForEcharts.length * itemHeight + 100);
                 chartDiv.style.height = `${calculatedHeight}px`;
