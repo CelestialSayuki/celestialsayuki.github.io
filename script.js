@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return TARGET_MANUFACTURERS.includes(firstWord);
     }
 
-    function processChartDataForEcharts(dataArray) {
+    function processChartDataForEcharts(dataArray, isPeakChart = false) {
         const chartDataProcessed = {};
         dataArray.forEach(item => {
             const key = item.cpuInfo;
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     browserVersion: item.browserVersion,
                     speedometerError: item.speedometerError,
                     timestamp: item.timestamp,
-                    isPeakData: item.isPeakData || false
+                    isPeakData: isPeakChart ? true : (item.isPeakData || false)
                 };
             }
         });
@@ -387,8 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 processedWebviewCpuInfos.add(cpuInfo);
             }
         });
-
-        const finalChartDataForPeak = processChartDataForEcharts(rawDataForPeak);
+        const finalChartDataForPeak = processChartDataForEcharts(rawDataForPeak, true);
         const finalChartDataForBase = processChartDataForEcharts(intermediateDataForBaseChart);
         const finalChartDataForWebview = processChartDataForEcharts(intermediateDataForWebviewChart);
 
