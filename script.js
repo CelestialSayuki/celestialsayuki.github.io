@@ -445,8 +445,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!echarts || !container) {
             container.innerHTML = `<h2>${titlePrefix} 类型跑分</h2><p style="text-align:center; padding-top: 50px; color: red;">${titlePrefix} 类型图表初始化失败。</p>`;
             container.classList.remove('chart-hidden');
+            container.style.display = 'block';
             container.style.height = '';
             container.style.marginBottom = '';
+            container.style.paddingTop = '';
+            container.style.paddingBottom = '';
+            container.style.border = '';
             return null;
         }
 
@@ -472,17 +476,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (chartDataForEcharts.length === 0) {
             chartDiv.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
             container.classList.add('chart-hidden');
+            // Add a small delay before applying display: none to allow transition to start
             setTimeout(() => {
-                if (container.classList.contains('chart-hidden')) {
+                if (container.classList.contains('chart-hidden')) { // Check if still hidden
                     container.style.display = 'none';
                 }
-            }, 500);
+            }, 500); // Matches CSS transition duration
             return null;
         } else {
             container.classList.remove('chart-hidden');
-            container.style.display = 'block';
-            container.style.height = '';
-            container.style.marginBottom = '';
+            container.style.display = 'block'; // Ensure it's block for transition
+            container.style.height = ''; // Reset height
+            container.style.marginBottom = ''; // Reset margin
+            container.style.paddingTop = ''; // Reset padding
+            container.style.paddingBottom = ''; // Reset padding
+            container.style.border = ''; // Reset border
         }
 
         const option = {
@@ -559,6 +567,9 @@ document.addEventListener('DOMContentLoaded', () => {
             container.style.display = 'block';
             container.style.height = '';
             container.style.marginBottom = '';
+            container.style.paddingTop = '';
+            container.style.paddingBottom = '';
+            container.style.border = '';
             if (type === 'Base' && benchmarkChartBase) {
                 benchmarkChartBase.dispose();
                 benchmarkChartBase = null;
@@ -595,6 +606,9 @@ document.addEventListener('DOMContentLoaded', () => {
             container.style.display = 'block';
             container.style.height = '';
             container.style.marginBottom = '';
+            container.style.paddingTop = '';
+            container.style.paddingBottom = '';
+            container.style.border = '';
         }
     }
 
