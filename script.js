@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
         });
-        return Object.values(chartDataProcessed).sort((a, b) => b.score - a.s;core);
+        return Object.values(chartDataProcessed).sort((a, b) => b.score - a.score);
     }
 
     window.addEventListener('message', (event) => {
@@ -177,61 +177,33 @@ document.addEventListener('DOMContentLoaded', () => {
     autofillBrowserInfo();
 
     function activateTab(targetId) {
-        const currentActiveSection = document.querySelector('.content-section.active');
+        contentSections.forEach(section => section.classList.remove('active'));
         const targetSection = document.getElementById(targetId);
-
-        if (currentActiveSection && currentActiveSection.id !== targetId) {
-            currentActiveSection.style.opacity = 0;
-            setTimeout(() => {
-                currentActiveSection.classList.remove('active');
-                currentActiveSection.style.display = 'none';
-            }, 300);
-        } else if (!targetSection || targetSection.classList.contains('active')) {
-            return;
-        }
-
         if (targetSection) {
-            targetSection.style.display = 'block';
-            setTimeout(() => {
-                targetSection.style.opacity = 0;
-                targetSection.classList.add('active');
+            targetSection.classList.add('active');
+            sidebarMenuItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.target === targetId) item.classList.add('active');
+            });
+            bottomNavItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.target === targetId) item.classList.add('active');
+            });
+
+            if (targetId === 'results-section') {
+                loadUploadedResults();
                 setTimeout(() => {
-                    targetSection.style.opacity = 1;
-                    if (targetId === 'results-section') {
-                        loadUploadedResults();
-                        setTimeout(() => {
-                            resizeCharts();
-                        }, 100);
-                    }
-                }, 50);
-            }, currentActiveSection && currentActiveSection.id !== targetId ? 300 : 0);
+                    resizeCharts();
+                }, 100);
+            }
         }
-
-        sidebarMenuItems.forEach(item => item.classList.remove('active'));
-        const activeSidebarItem = document.querySelector(`.sidebar .menu-item`);
-        if (activeSidebarItem && activeSidebarItem.dataset.target === targetId) {
-            activeSidebarItem.classList.add('active');
-        }
-        sidebarMenuItems.forEach(item => {
-            if (item.dataset.target === targetId) item.classList.add('active');
-        });
-
-        bottomNavItems.forEach(item => item.classList.remove('active'));
-        bottomNavItems.forEach(item => {
-            if (item.dataset.target === targetId) item.classList.add('active');
-        });
     }
 
-    contentSections.forEach((section, index) => {
-        if (index > 0) {
-            section.style.display = 'none';
-            section.style.opacity = 0;
-        }
-    });
+    sidebarMenuItems.forEach(item => item.addEventListener('click', () => activateTab(item.dataset.target)));
+    bottomNavItems.forEach(item => item.addEventListener('click', () => activateTab(item.dataset.target)));
 
     const initiallyActiveSection = document.querySelector('.content-section.active');
     if (initiallyActiveSection) {
-        initiallyActiveSection.style.opacity = 1;
         if (initiallyActiveSection.id === 'results-section') {
             loadUploadedResults();
             setTimeout(() => {
