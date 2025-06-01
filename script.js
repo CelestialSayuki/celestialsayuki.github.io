@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const originalDataItem = chartDataForEcharts.find(d => d.device === item.name && d.score === item.value);
                             if (originalDataItem) {
                                 const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
-                                let scoreInfo = `最高分数: ${item.value}<br/>`;
+                                let scoreInfo = `最高分数: ${item.value.toFixed(2)}<br/>`
 
                                 return `
                                     <strong>设备 (CPU): ${item.name}</strong><br/>
