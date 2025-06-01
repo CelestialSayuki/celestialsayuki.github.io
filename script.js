@@ -2,7 +2,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 document.addEventListener('DOMContentLoaded', () => {
     const SUPABASE_URL = 'https://pdmmtiiwdazcvcbyxkor.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkbW10aWl3ZGF6Y3ZjYnl4a29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1MjM3NTMsImV4cCI6MjA2NDA5OTc1M30.FOebKEr65b9mkWH8rCCePYkeNVCWny52T8SqTtX2cjs';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkbW10aWl3ZGF6Y3ZjYnl4xayIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1MjM3NTMsImV4cCI6MjA2NDA5OTc1M30.FOebKEr65b9mkWH8rCCePYkeNVCWny52T8SqTtX2cjs';
 
     const SPEEDOMETER_IFRAME_ORIGIN = '*';
 
@@ -321,13 +321,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemToAdd.timestamp = peakData.timestamp;
                 }
             }
-            finalDataForBaseChart.push(itemToAdd);
+            intermediateDataForBaseChart.push(itemToAdd);
             processedBaseCpuInfos.add(itemToAdd.cpuInfo);
         });
 
         peakScoresMap.forEach((peakItem, cpuInfo) => {
             if (isTargetManufacturer(cpuInfo) && !processedBaseCpuInfos.has(cpuInfo)) {
-                finalDataForBaseChart.push({
+                intermediateDataForBaseChart.push({
                     ...peakItem,
                     benchmarkType: 'Base',
                 });
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         peakScoresMap.forEach((peakItem, cpuInfo) => {
             if (isTargetManufacturer(cpuInfo) && !processedWebviewCpuInfos.has(cpuInfo)) {
-                finalDataForWebviewChart.push({
+                intermediateDataForWebviewChart.push({
                     ...peakItem,
                     benchmarkType: 'Webview',
                 });
@@ -365,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const finalChartDataForPeak = processChartDataForEcharts(rawDataForPeak);
         const finalChartDataForBase = processChartDataForEcharts(intermediateDataForBaseChart);
         const finalChartDataForWebview = processChartDataForEcharts(intermediateDataForWebviewChart);
+
         benchmarkChartPeak = renderBenchmarkChart(benchmarkChartContainerPeak, benchmarkChartPeak, finalChartDataForPeak, 'Peak');
         benchmarkChartBase = renderBenchmarkChart(benchmarkChartContainerBase, benchmarkChartBase, finalChartDataForBase, 'Base');
         benchmarkChartWebview = renderBenchmarkChart(benchmarkChartContainerWebview, benchmarkChartWebview, finalChartDataForWebview, 'Webview');
@@ -401,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterBrowserVersionSelect.value = "";
             }
             if (filterCpuInfoSelect.querySelector(`option[value="${currentCpuFilter}"]`)) {
-                filterCpuInfoSelect.value = currentCpuFilter;
+                filterCpuInfoSelect.value = "";
             } else {
                 filterCpuInfoSelect.value = "";
             }
@@ -462,6 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (originalDataItem) {
                         const date = originalDataItem.timestamp ? new Date(originalDataItem.timestamp) : null;
                         let scoreInfo = `最高分数: ${item.value}<br/>`;
+
                         return `
                             <strong>设备 (CPU): ${item.name}</strong><br/>
                             ${scoreInfo}
