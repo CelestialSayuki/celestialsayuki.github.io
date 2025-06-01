@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(chartDiv);
 
         const itemHeight = 25;
-        const minChartHeight = 300;
+        const minChartHeight = 100;
         const calculatedHeight = Math.max(minChartHeight, chartDataForEcharts.length * itemHeight + 100);
         console.log(`Rendering ${titlePrefix} Chart. Calculated Height: ${calculatedHeight}px`);
 
@@ -476,21 +476,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (chartDataForEcharts.length === 0) {
             chartDiv.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
             container.classList.add('chart-hidden');
-            // Add a small delay before applying display: none to allow transition to start
-            setTimeout(() => {
-                if (container.classList.contains('chart-hidden')) { // Check if still hidden
+            container.addEventListener('transitionend', function handler() {
+                if (container.classList.contains('chart-hidden')) {
                     container.style.display = 'none';
                 }
-            }, 500); // Matches CSS transition duration
+                container.removeEventListener('transitionend', handler);
+            }, { once: true });
             return null;
         } else {
-            container.classList.remove('chart-hidden');
-            container.style.display = 'block'; // Ensure it's block for transition
-            container.style.height = ''; // Reset height
-            container.style.marginBottom = ''; // Reset margin
-            container.style.paddingTop = ''; // Reset padding
-            container.style.paddingBottom = ''; // Reset padding
-            container.style.border = ''; // Reset border
+            container.style.display = 'block';
+            requestAnimationFrame(() => {
+                container.classList.remove('chart-hidden');
+                container.style.height = '';
+                container.style.marginBottom = '';
+                container.style.paddingTop = '';
+                container.style.paddingBottom = '';
+                container.style.border = '';
+            });
         }
 
         const option = {
@@ -587,11 +589,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (container) {
             container.innerHTML = `<h2>${type} 类型跑分</h2><p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>`;
             container.classList.add('chart-hidden');
-            setTimeout(() => {
+            container.addEventListener('transitionend', function handler() {
                 if (container.classList.contains('chart-hidden')) {
                     container.style.display = 'none';
                 }
-            }, 500);
+                container.removeEventListener('transitionend', handler);
+            }, { once: true });
             if (chartInstance) {
                 chartInstance.dispose();
                 chartInstance = null;

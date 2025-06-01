@@ -323,7 +323,6 @@ button:disabled:hover {
 .benchmark-chart-individual-container {
     width: 100%;
     height: auto;
-    min-height: 300px;
     margin-bottom: 30px;
     background-color: #fff;
     border-radius: 8px;
@@ -332,17 +331,32 @@ button:disabled:hover {
     box-sizing: border-box;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    transition: opacity 0.5s ease-in-out, height 0.5s ease-in-out, margin-bottom 0.5s ease-in-out;
+    transition: opacity 0.5s ease-in-out,
+                height 0.5s ease-in-out,
+                margin-bottom 0.5s ease-in-out,
+                padding 0.5s ease-in-out,
+                border 0.5s ease-in-out;
 }
 
 .benchmark-chart-individual-container.chart-hidden {
     opacity: 0;
     height: 0 !important;
     margin-bottom: 0 !important;
-    overflow: hidden;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
     border: none !important;
+    overflow: hidden;
+    transition: opacity 0.5s ease-in-out,
+                height 0.5s ease-in-out,
+                margin-bottom 0.5s ease-in-out,
+                padding 0.5s ease-in-out,
+                border 0.5s ease-in-out,
+                visibility 0.5s ease-in-out;
+    visibility: hidden;
+}
+
+.benchmark-chart-individual-container:not(.chart-hidden) {
+    visibility: visible;
 }
 
 .results-container {
@@ -486,6 +500,10 @@ button:disabled:hover {
 
     .results-container {
         padding: 15px 10px;
+    }
+
+    #results-list li {
+        padding: 12px;
     }
 
     .checkbox-group-container {
