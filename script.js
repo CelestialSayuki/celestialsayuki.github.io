@@ -305,9 +305,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const selectedBrowserVersions = Array.from(filterBrowserVersionCheckboxesContainer.querySelectorAll('input[name="filterBrowserVersion"]:checked'))
-                                         .map(checkbox => checkbox.value);
+                                             .map(checkbox => checkbox.value);
         const selectedCpuInfos = Array.from(filterCpuInfoCheckboxesContainer.querySelectorAll('input[name="filterCpuInfo"]:checked'))
-                                     .map(checkbox => checkbox.value);
+                                           .map(checkbox => checkbox.value);
 
         let filteredData = allBenchmarkData;
 
@@ -398,9 +398,9 @@ document.addEventListener('DOMContentLoaded', () => {
         clearAndShowLoading(benchmarkChartContainerWebview, 'Webview');
 
         const currentSelectedBrowserVersions = Array.from(filterBrowserVersionCheckboxesContainer.querySelectorAll('input[name="filterBrowserVersion"]:checked'))
-                                         .map(checkbox => checkbox.value);
+                                             .map(checkbox => checkbox.value);
         const currentSelectedCpuInfos = Array.from(filterCpuInfoCheckboxesContainer.querySelectorAll('input[name="filterCpuInfo"]:checked'))
-                                         .map(checkbox => checkbox.value);
+                                           .map(checkbox => checkbox.value);
 
         try {
             const { data, error } = await supabase
@@ -443,7 +443,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderBenchmarkChart(container, chartInstance, chartDataForEcharts, titlePrefix) {
         if (!echarts || !container) {
-            container.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">${titlePrefix} 类型图表初始化失败。</p>`;
+            container.innerHTML = `<h2>${titlePrefix} 类型跑分</h2><p style="text-align:center; padding-top: 50px; color: red;">${titlePrefix} 类型图表初始化失败。</p>`;
+            container.classList.remove('chart-hidden');
+            container.style.height = '';
+            container.style.marginBottom = '';
             return null;
         }
 
@@ -468,7 +471,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (chartDataForEcharts.length === 0) {
             chartDiv.innerHTML = '<p style="text-align:center; padding-top: 50px;">没有符合筛选条件的数据可生成图表。</p>';
+            container.classList.add('chart-hidden');
+            setTimeout(() => {
+                if (container.classList.contains('chart-hidden')) {
+                    container.style.display = 'none';
+                }
+            }, 500);
             return null;
+        } else {
+            container.classList.remove('chart-hidden');
+            container.style.display = 'block';
+            container.style.height = '';
+            container.style.marginBottom = '';
         }
 
         const option = {
@@ -541,6 +555,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearAndShowLoading(container, type) {
         if (container) {
             container.innerHTML = `<h2>${type} 类型跑分</h2><p style="text-align:center; padding-top: 50px;">正在加载数据...</p>`;
+            container.classList.remove('chart-hidden');
+            container.style.display = 'block';
+            container.style.height = '';
+            container.style.marginBottom = '';
             if (type === 'Base' && benchmarkChartBase) {
                 benchmarkChartBase.dispose();
                 benchmarkChartBase = null;
@@ -557,6 +575,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearAndShowNoData(container, chartInstance, type) {
         if (container) {
             container.innerHTML = `<h2>${type} 类型跑分</h2><p style="text-align:center; padding-top: 50px;">暂无数据可用于生成图表。</p>`;
+            container.classList.add('chart-hidden');
+            setTimeout(() => {
+                if (container.classList.contains('chart-hidden')) {
+                    container.style.display = 'none';
+                }
+            }, 500);
             if (chartInstance) {
                 chartInstance.dispose();
                 chartInstance = null;
@@ -566,7 +590,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showErrorInChartContainer(container, errorMessage) {
         if (container) {
-            container.innerHTML = `<p style="text-align:center; padding-top: 50px; color: red;">${errorMessage}</p>`;
+            container.innerHTML = `<h2>Error</h2><p style="text-align:center; padding-top: 50px; color: red;">${errorMessage}</p>`;
+            container.classList.remove('chart-hidden');
+            container.style.display = 'block';
+            container.style.height = '';
+            container.style.marginBottom = '';
         }
     }
 

@@ -471,14 +471,19 @@ button:disabled:hover {
         height: 300px;
         padding: 10px;
         margin-bottom: 20px;
+        transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, margin-top 0.5s ease-in-out;
+    }
+    
+    .benchmark-chart-individual-container.chart-hidden {
+        opacity: 0;
+        height: 0 !important;
+        margin-bottom: 0 !important;
+        overflow: hidden;
+        display: block;
     }
 
     .results-container {
         padding: 15px 10px;
-    }
-
-    #results-list li {
-        padding: 12px;
     }
 
     .checkbox-group-container {
