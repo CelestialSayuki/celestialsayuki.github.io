@@ -118,8 +118,24 @@ document.addEventListener('DOMContentLoaded', () => {
         let userAgent = navigator.userAgent;
         let browserName = '未知浏览器';
         let browserVersion = '未知版本';
-
-        if (userAgent.includes('HeyTapBrowser')) {
+        if (/(iPhone|iPad|iPod).*AppleWebKit.*Mobile/.test(userAgent) && userAgent.includes('Safari') && !userAgent.includes('Chrome') && !userAgent.includes('Edg') && !userAgent.includes('OPR') && !userAgent.includes('Opera')) {
+            browserName = 'Safari';
+            let osVersionMatch = userAgent.match(/OS (\d+)_(\d+)(?:_(\d+))? like Mac OS X/);
+            if (osVersionMatch) {
+                browserVersion = `${osVersionMatch[1]}.${osVersionMatch[2]}` + (osVersionMatch[3] ? `.${osVersionMatch[3]}` : '');
+            } else {
+                let safariVersionMatch = userAgent.match(/Version\/(\d+(\.\d+){1,2})/);
+                if (safariVersionMatch && safariVersionMatch[1]) {
+                    browserVersion = safariVersionMatch[1];
+                } else {
+                    let appleWebKitVersionMatch = userAgent.match(/AppleWebKit\/(\d+(\.\d+){1,3})/);
+                    if (appleWebKitVersionMatch && appleWebKitVersionMatch[1]) {
+                        browserVersion = appleWebKitVersionMatch[1];
+                    }
+                }
+            }
+        }
+        else if (userAgent.includes('HeyTapBrowser')) {
             browserName = 'OppoBrowser';
             const heyTapBrowserVersion = userAgent.match(/HeyTapBrowser\/(\d+(\.\d+){1,3})/);
             if (heyTapBrowserVersion && heyTapBrowserVersion[1]) {
@@ -129,8 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (chromeCoreVersion && chromeCoreVersion[1]) {
                 browserVersion += ` (Chrome ${chromeCoreVersion[1]})`;
             }
-        }
-        else if (userAgent.includes('HuaweiBrowser')) {
+        } else if (userAgent.includes('HuaweiBrowser')) {
             browserName = 'HuaweiBrowser';
             const huaweiBrowserVersion = userAgent.match(/HuaweiBrowser\/(\d+\.\d+\.\d+\.\d+)/);
             if (huaweiBrowserVersion && huaweiBrowserVersion[1]) {
