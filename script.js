@@ -51,10 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const chartDataProcessed = {};
         dataArray.forEach(item => {
             const key = item.cpuInfo;
-            if (!chartDataProcessed[key] || item.speedometerScore > chartDataProcessed[key].score) {
+            const scoreAsNumber = parseFloat(item.speedometerScore);
+            if (!chartDataProcessed[key] || scoreAsNumber > chartDataProcessed[key].score) {
                 chartDataProcessed[key] = {
                     device: key,
-                    score: item.speedometerScore,
+                    score: scoreAsNumber,
                     benchmarkType: item.benchmarkType,
                     browserVersion: item.browserVersion,
                     speedometerError: item.speedometerError,
