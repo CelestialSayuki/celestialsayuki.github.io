@@ -119,11 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let userAgent = navigator.userAgent;
         let browserName = '未知浏览器';
         let browserVersion = '未知版本';
-        if (/(iPhone|iPad|iPod).*AppleWebKit.*Mobile/.test(userAgent) && userAgent.includes('Safari') && !userAgent.includes('Chrome') && !userAgent.includes('Edg') && !userAgent.includes('OPR') && !userAgent.includes('Opera')) {
+        if (/(iPhone|iPad|iPod).*AppleWebKit.*Mobile/.test(userAgent) &&
+            !userAgent.includes('Chrome') &&
+            !userAgent.includes('Edg') &&
+            !userAgent.includes('OPR') &&
+            !userAgent.includes('Opera')) {
             browserName = 'Safari';
             let osVersionMatch = userAgent.match(/OS (\d+)_(\d+)(?:_(\d+))? like Mac OS X/);
             if (osVersionMatch) {
-                browserVersion = `${osVersionMatch[1]}.${osVersionMatch[2]}` + (osVersionMatch[3] ? `.${osVersionMatch[3]}` : '');
+                browserVersion = `${osVersionMatch[1]}.${osVersionSlices[2]}` + (osVersionMatch[3] ? `.${osVersionMatch[3]}` : '');
             } else {
                 let safariVersionMatch = userAgent.match(/Version\/(\d+(\.\d+){1,2})/);
                 if (safariVersionMatch && safariVersionMatch[1]) {
