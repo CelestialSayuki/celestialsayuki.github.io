@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
             browserName = 'Safari';
             let osVersionMatch = userAgent.match(/OS (\d+)_(\d+)(?:_(\d+))? like Mac OS X/);
             if (osVersionMatch) {
-                browserVersion = `${osVersionMatch[1]}.${osVersionSlices[2]}` + (osVersionMatch[3] ? `.${osVersionMatch[3]}` : '');
+                browserVersion = `${osVersionMatch[1]}.${osVersionMatch[2]}` + (osVersionMatch[3] ? `.${osVersionMatch[3]}` : '');
             } else {
                 let safariVersionMatch = userAgent.match(/Version\/(\d+(\.\d+){1,2})/);
                 if (safariVersionMatch && safariVersionMatch[1]) {
